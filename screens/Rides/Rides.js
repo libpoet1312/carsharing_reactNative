@@ -1,94 +1,66 @@
 import React, { Component } from 'react'
-import {View, Text, FlatList, StyleSheet, TouchableOpacity, Image, TextInput, RefreshControl} from "react-native";
-import {ListItem, Right, Left, Body, Button, Icon} from "native-base";
-import axios from 'axios';
+import {View, Text, FlatList, StyleSheet, TouchableOpacity} from "react-native";
+
+import {connect} from 'react-redux';
+import * as ridesActions from '../../store/actions/ridesActions';
+
 import {AppLoading} from "expo";
-import {DrawerActions} from "@react-navigation/native";
-import car from '../../assets/images/carlist.jpeg';
+
 import SearchBar from "../../components/SearchBar/SearchBar";
-export default class Rides extends Component {
+import RideItem from "../../components/RideItem/RideItem";
+import FilterButton from "../../components/FilterButton/FilterButton";
+import {Icon} from "native-base";
+import PaginationButton from "../../components/PaginationButton/PaginationButton";
 
 
+let query = new URLSearchParams();
+
+
+class Rides extends Component {
     constructor(props) {
         super(props);
     }
 
     state = {
         rides: null,
-        loading: true
+        loading: true,
+        origin: null,
+        destination: null,
+        date: null,
+        time: null,
+        passengers: null,
+        pager: {},
     };
 
     onRefresh() {
-        this.setState({ loading: true }, function() { this.fetchData() });
+        this.setState({ loading: true }, function() {  this.props.fetchRides(query.toString()) });
     }
 
-    fetchData = () => {
-        axios.get('https://snf-876572.vm.okeanos.grnet.gr/api/').then(res => {
-            this.setState( {
-                rides: res.data.results,
-                loading: false
-            })
-        }).catch( error => {
-            console.log(error);
-        })
-    };
+
 
     componentDidMount() {
-        this.fetchData();
+        this.props.fetchRides(query.toString());
     }
 
-    renderSeparator = () => {
-        return (
-            <View
-                style={{
-                    height: 1,
-                    width: '86%',
-                    backgroundColor: '#CED0CE',
-                    marginLeft: '5%'
-                }}
-            />
-        )
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('UPDATE');
+        if(this.state!==prevState){
+            console.log('here');
+            this.props.fetchRides(query.toString());
+        }
+    }
+
+    setPage = (page) => {
+        // console.log(page);
+
+        if(page===1){
+            query.delete('page');
+        }else{
+            query.append('page', page);
+        }
+        this.props.fetchRides(query.toString());
     };
 
-    renderItem = ({ item }) => {
-        return (
-            <TouchableOpacity
-                onPress={() => this.props.navigation.navigate("Ride", {
-                    pk: item.pk
-                })}
-            >
-                <View
-                    style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        padding: 15,
-                        marginBottom: 3,
-                        alignItems: 'center',
-                        borderWidth: 1,
-                        justifyContent: 'space-between'
-                    }}>
-                    <Image
-                        style={styles.car}
-                        source={car}
-                    />
-
-                    <View style={{width: 250}}>
-                        <Text style={{alignItems: 'center'}}>
-                            <Text style={styles.city}>{item.origin} </Text>
-                            <Icon name='arrow-forward' type={'Ionicons'} style={{fontSize: 18}}/>
-                            <Text style={styles.city}> {item.destination} </Text>
-
-
-                        </Text>
-                        <Text style={styles.date}>Vacant Seats: {item.vacant_seats}</Text>
-                    </View>
-
-                    <Text style={styles.date}>{item.date}</Text>
-
-                </View>
-            </TouchableOpacity>
-        )
-    };
 
 
 
@@ -96,38 +68,48 @@ export default class Rides extends Component {
         return <SearchBar/>;
     };
 
+
     render() {
-        if(this.state.loading){
+        if(this.props.loading){
             return <AppLoading />;
         }
+
 
         return (
             <View style={styles.container}>
                 <FlatList
-                    data={this.state.rides}
-                    renderItem={this.renderItem}
+                    data={this.props.rides}
+                    renderItem={({ item }) => RideItem({item}, this.props.navigation)} //passing navigation props also!
                     keyExtractor={item => item.origin}
                     ListHeaderComponent={this.renderHeader}
                     onRefresh={() => this.onRefresh()}
-                    refreshing={this.state.loading}
+                    refreshing={this.props.loading}
                 />
 
-                <TouchableOpacity
-                    style={{
-                        borderWidth:1,
-                        borderColor:'rgba(0,0,0,0.2)',
-                        alignItems:'center',
-                        justifyContent:'center',
-                        width:50,
-                        alignSelf: 'center',
-                        bottom: 10,
-                        height:50,
-                        backgroundColor:'#fff',
-                        borderRadius:100,
-                    }}
-                >
-                    <Icon name="filter" type='AntDesign' size={30} />
-                </TouchableOpacity>
+                <View style={styles.buttons}>
+                    {this.props.pager.prevPageUrl ?
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => this.setPage(this.props.pager.currentPage - 1)}
+
+                        >
+                            <Icon name="caretleft" type='AntDesign' size={30} />
+                        </TouchableOpacity>: null
+                    }
+
+                    <FilterButton/>
+                    { this.props.pager.nextPageUrl ?
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => this.setPage(this.props.pager.currentPage + 1)}
+                        >
+                            <Icon name="caretright" type='AntDesign' size={30} />
+                        </TouchableOpacity>  : null
+                    }
+
+                </View>
+
+
 
 
             </View>
@@ -155,5 +137,42 @@ const styles = StyleSheet.create({
     date: {
         fontWeight: 'normal',
         color: '#848484'
+    },
+    button: {
+        borderWidth: 1,
+        borderColor:'rgba(0,0,0,0.2)',
+        borderRadius:100,
+        width:50,
+        height:50,
+        justifyContent:'center',
+        alignItems:'center',
+    },
+    buttons: {
+        flex: 0,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        padding: 10,
+        borderColor: 'rgba(0,0,0.2,0.1)',
+        bottom: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     }
 });
+
+
+const mapStateToProps = (state) => {
+    return {
+        rides: state.rides.rides,
+        error: state.rides.error,
+        loading: state.rides.loading,
+        pager: state.rides.pager
+    }
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchRides: (query) => dispatch(ridesActions.fetchRides(query))
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Rides);

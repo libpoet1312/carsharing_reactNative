@@ -1,25 +1,17 @@
 import 'react-native-gesture-handler';
+import 'react-native-url-polyfill/auto';
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, StatusBar} from 'react-native';
+
+import { Provider, } from 'react-redux';
+import { StatusBar} from 'react-native';
 import axios from "axios";
 import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 
+import {store} from './store/store';
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import { createBottomTabNavigator} from "@react-navigation/bottom-tabs";
-
-import StartPage from './screens/startPage/startPage';
-import Home from "./screens/Home/Home";
-import Rides from "./screens/Rides/Rides";
-
-import MyHeader from "./components/Header/Header";
-import Loading from "./components/Loading/Loading";
 import MainNavigation from "./MainNavigation";
-
 
 
 class App extends Component{
@@ -61,22 +53,13 @@ class App extends Component{
         }
 
         return(
-            <>
+            <Provider store={store}>
                 <StatusBar hidden/>
                 <MainNavigation/>
-            </>
+            </Provider>
 
       )
     }
 }
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
