@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {View, Text, FlatList, StyleSheet, TouchableOpacity} from "react-native";
+import {View, FlatList, StyleSheet, TouchableOpacity} from "react-native";
 
 import {connect} from 'react-redux';
 import * as ridesActions from '../../store/actions/ridesActions';
@@ -10,7 +10,6 @@ import SearchBar from "../../components/SearchBar/SearchBar";
 import RideItem from "../../components/RideItem/RideItem";
 import FilterButton from "../../components/FilterButton/FilterButton";
 import {Icon} from "native-base";
-import PaginationButton from "../../components/PaginationButton/PaginationButton";
 
 
 let query = new URLSearchParams();
@@ -33,7 +32,7 @@ class Rides extends Component {
     };
 
     onRefresh() {
-        this.setState({ loading: true }, function() {  this.props.fetchRides(query.toString()) });
+        this.setState({ loading: true }, () => {  this.props.fetchRides(query.toString()) });
     }
 
 
@@ -43,7 +42,6 @@ class Rides extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('UPDATE');
         if(this.state!==prevState){
             console.log('here');
             this.props.fetchRides(query.toString());
@@ -51,8 +49,6 @@ class Rides extends Component {
     }
 
     setPage = (page) => {
-        // console.log(page);
-
         if(page===1){
             query.delete('page');
         }else{

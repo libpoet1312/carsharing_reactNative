@@ -1,21 +1,27 @@
-import React, {Component} from 'react';
-import {Text, View, Button, Icon} from 'native-base';
+import React from 'react';
 import { NavigationContainer, useNavigation, DrawerActions } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, useIsDrawerOpen } from "@react-navigation/drawer";
+
+import {connect} from 'react-redux';
+import * as authActions from './store/actions/authActions';
+
 import Home from "./screens/Home/Home";
 import Rides from "./screens/Rides/Rides";
-import { StyleSheet} from 'react-native';
+
 import Ride from "./screens/Ride/Ride";
 import FAQ from "./screens/FAQ/FAQ";
-import {TouchableOpacity} from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons';
+
+
+import Login from "./components/LoginForm/Login";
+import Signup from "./components/Signup/SignUp";
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
 const RideStackNav = createStackNavigator();
-
+const AuthStackNav = createStackNavigator();
 
 
 const RideStack = () => {
@@ -27,7 +33,16 @@ const RideStack = () => {
     )
 };
 
-const MainNavigation = () => {
+
+const AuthStack = () => (
+    <AuthStackNav.Navigator initialRouteName={'Login'}>
+        <AuthStackNav.Screen name="SignIn" component={Login} />
+        <AuthStackNav.Screen name="SignUp" component={Signup} />
+        {/*<AuthStackNav.Screen name="ResetPassword" component={ResetPassword} />*/}
+    </AuthStackNav.Navigator>
+);
+
+const MainNavigation = (props) => {
     return (
         <NavigationContainer>
             <Tab.Navigator
@@ -44,7 +59,12 @@ const MainNavigation = () => {
                         }else if (route.name === 'Home'){
                             iconName = focused ? 'ios-home' : 'md-home';
                         }else if (route.name === 'Login'){
-                            iconName="ios-log-in"
+                            if(props.isAuthenticated){
+                                iconName="ios-person"
+                            }else{
+                                iconName="ios-log-in"
+                            }
+
                         }
 
                         // You can return any component that you like here!
@@ -59,7 +79,7 @@ const MainNavigation = () => {
                 <Tab.Screen name="Home" component={Home}/>
                 <Tab.Screen name="Rides" component={RideStack}/>
                 <Tab.Screen name="FAQ" component={FAQ}/>
-                <Tab.Screen name="Login" component={FAQ}/>
+                <Tab.Screen name="Login" component={AuthStack}/>
             </Tab.Navigator>
 
         </NavigationContainer>
@@ -67,7 +87,18 @@ const MainNavigation = () => {
 
 };
 
+const mapStateToProps = state => {
+    return {
+        isAuthenticated: state.auth.user !== null,
+        user: state.auth.user,
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        logout: () => dispatch(authActions.logout()),
+    }
+};
 
 
-
-export default MainNavigation;
+export default connect(mapStateToProps, mapDispatchToProps)(MainNavigation);

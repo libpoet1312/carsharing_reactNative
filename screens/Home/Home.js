@@ -3,8 +3,10 @@ import { StyleSheet, View, ActivityIndicator, Image, TextInput } from 'react-nat
 import axios from "axios";
 import {Button, Text, } from "native-base";
 import logo from "../../assets/images/carsharing.jpg";
+import * as authActions from "../../store/actions/authActions";
+import {connect} from "react-redux";
 
-export default class Home extends Component {
+class Home extends Component {
     render() {
 
         return (
@@ -26,6 +28,11 @@ export default class Home extends Component {
                     >
                         <Text>Go to Rides</Text>
                     </Button>
+                    <Button danger
+                        onPress={()=> this.props.logout()}
+                    >
+                        <Text>Logout</Text>
+                    </Button>
 
                 </View>
 
@@ -33,6 +40,16 @@ export default class Home extends Component {
         )
   }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        logout: () => dispatch(authActions.logout()),
+    }
+};
+
+export default connect(null, mapDispatchToProps)(Home);
+
+
 
 const styles = StyleSheet.create({
     container: {

@@ -25,7 +25,7 @@ const fetchRidesFail = (state, action) => {
 };
 
 const fetchRidesSuccess = (state, action) => {
-    console.log(action.rides);
+    // console.log(action.rides);
     let next = action.rides.next;
     let nextUrl = null;
     let prev = action.rides.previous;
@@ -58,7 +58,7 @@ const fetchRidesSuccess = (state, action) => {
 
     console.log("[currentPage]", currentPage);
     let pager = getPager(action.rides.count, currentPage, nextUrl, prevUrl);
-    console.log(pager);
+    // console.log(pager);
     let newRides = action.rides.results;
     // if(state.rides && pager.currentPage<pager.totalPages){
     //     newRides = action.rides.results.concat(state.rides);
