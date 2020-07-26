@@ -2,6 +2,9 @@ import 'react-native-gesture-handler';
 import 'react-native-url-polyfill/auto';
 import React, {Component} from 'react';
 
+import { connect } from 'react-redux';
+import * as actions from './store/actions/authActions';
+
 import { Provider, } from 'react-redux';
 import { StatusBar} from 'react-native';
 import axios from "axios";
@@ -45,6 +48,8 @@ class App extends Component{
                 loading: false
             });
         });
+
+
     }
 
     render() {
@@ -62,4 +67,4 @@ class App extends Component{
     }
 }
 
-export default App;
+export default (App);

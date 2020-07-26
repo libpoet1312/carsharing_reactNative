@@ -5,9 +5,25 @@ import {Button, Text, } from "native-base";
 import logo from "../../assets/images/carsharing.jpg";
 import * as authActions from "../../store/actions/authActions";
 import {connect} from "react-redux";
+import AsyncStorage from '@react-native-community/async-storage';
 
 class Home extends Component {
     render() {
+        let value;
+        // try{
+        //     let jsonValue = (AsyncStorage.getItem('user'));
+        //     value = jsonValue != null ? JSON.parse(jsonValue):null;
+        // }catch (e) {
+        //     console.log(e);
+        // }
+
+        try{
+            let lala = (AsyncStorage.getItem('lala'));
+            value = lala != null ? lala:null;
+        }catch (e) {
+            console.log(e);
+        }
+
 
         return (
             <View style={styles.container}>
@@ -33,6 +49,9 @@ class Home extends Component {
                     >
                         <Text>Logout</Text>
                     </Button>
+                    <Text>
+                        123{value}
+                    </Text>
 
                 </View>
 

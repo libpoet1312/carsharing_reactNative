@@ -101,22 +101,27 @@ export const facebookAuthSuccess = (user) => {
 export const authLogin = (username, password) => {
     return dispatch => {
         dispatch(authStart());
-        axios.post(API_HTTP+'rest-auth/login/',{
-            username: username,
-            password: password
-        }).then( response =>{
+        axios.post('https://snf-876572.vm.okeanos.grnet.gr/rest-auth/login/',{
+            username,
+            password
+        }, ).then( response =>{
             const user = {
                 token: response.data.token,
                 user: response.data.user
             };
+            console.log('123');
             AsyncStorage.setItem('user', JSON.stringify(user), error=>{
+                console.log(error);
+            });
+            AsyncStorage.setItem('lala', 5, error=>{
                 console.log(error);
             });
 
             dispatch(authSuccess(user));
         }).catch( error => {
+
             console.log('edwsad');
-            console.log(error);
+            console.log(error.response);
             dispatch(authFail(error));
         });
     }
@@ -164,7 +169,10 @@ export const authSignup = (
 
 export const authCheckState = () => {
     return dispatch => {
-        const user = JSON.parse(AsyncStorage.getItem("user"));
+        const jsonValue = (AsyncStorage.getItem("user"));
+        // console.log(jsonValue);
+        const user = jsonValue ? (jsonValue) : null ;
+        // console.log(user);
         if (user === undefined || user === null) {
             // console.log('123123');
             // dispatch(logout());
@@ -207,13 +215,13 @@ export const authCheckState = () => {
 
 
                 }).catch( error => {
-                    console.log(error);
+                    // console.log(error.response);
                     dispatch(authFail(error));
                 });
 
 
             }).catch( error => {
-                console.log(error);
+                // console.log(error.response);
                 dispatch(authFail(error));
             });
 

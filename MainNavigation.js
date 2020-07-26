@@ -1,8 +1,10 @@
-import React from 'react';
-import { NavigationContainer, useNavigation, DrawerActions } from '@react-navigation/native';
+import React, {useState, Component} from 'react';
+import { NavigationContainer, DrawerActions } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createDrawerNavigator, useIsDrawerOpen } from "@react-navigation/drawer";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+
+import {Button, Icon} from "native-base";
 
 import {connect} from 'react-redux';
 import * as authActions from './store/actions/authActions';
@@ -17,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import Login from "./components/LoginForm/Login";
 import Signup from "./components/Signup/SignUp";
+import MyProfile from "./screens/MyProfile/MyProfile";
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,59 +36,115 @@ const RideStack = () => {
     )
 };
 
+const SideBar = () => {
+    return <Drawer.Navigator
+        drawerPosition="right"
+    >
+        <Drawer.Screen name={'Profile'} component={MyProfile}/>
+    </Drawer.Navigator>
+};
 
-const AuthStack = () => (
-    <AuthStackNav.Navigator initialRouteName={'Login'}>
-        <AuthStackNav.Screen name="SignIn" component={Login} />
-        <AuthStackNav.Screen name="SignUp" component={Signup} />
-        {/*<AuthStackNav.Screen name="ResetPassword" component={ResetPassword} />*/}
-    </AuthStackNav.Navigator>
-);
 
-const MainNavigation = (props) => {
+const AuthStack = (props) => {
+
+    const [drawer, drawerToggle] = useState('false');
+    console.log(drawer);
     return (
-        <NavigationContainer>
-            <Tab.Navigator
-                screenOptions={({ route }) => ({
-                    tabBarIcon: ({ focused, color, size }) => {
-                        let iconName;
+        <AuthStackNav.Navigator>
+            {props.route.params.isAuthenticated ?
+                <>
+                    <AuthStackNav.Screen name="Profile" component={SideBar}
+                        options={{
+                            title: 'My Profile',
+                            headerRight: () => (
+                                <Button transparent
+                                    onPress={() => {
+                                        props.navigation.dispatch(DrawerActions.toggleDrawer());
+                                        drawerToggle(!drawer);
+                                    }}
+                                        style={{marginRight: 10}}
+                                >
+                                    <Icon name={drawer? 'menu-unfold' : 'menu-fold'} type={'AntDesign'}/>
+                                </Button>
 
-                        if (route.name === 'FAQ') {
-                            iconName = focused
-                                ? 'ios-information-circle'
-                                : 'ios-information-circle-outline';
-                        } else if (route.name === 'Rides') {
-                            iconName = focused ? 'ios-list-box' : 'ios-list';
-                        }else if (route.name === 'Home'){
-                            iconName = focused ? 'ios-home' : 'md-home';
-                        }else if (route.name === 'Login'){
-                            if(props.isAuthenticated){
+                            ),
+                        }}
+                    />
+                    {/*<AuthStackNav.Screen name="Settings" component={SettingsScreen} />*/}
+                </>
+                :
+                <>
+                    <AuthStackNav.Screen name="SignIn" component={Login}
+                                         options={{
+                                             title: 'Sign in',
+                                             // When logging out, a pop animation feels intuitive
+                                             // You can remove this if you want the default 'push' animation
+                                             animationTypeForReplace: !props.route.params.isAuthenticated ? 'pop' : 'push',
+                                         }}/>
+                    <AuthStackNav.Screen name="SignUp" component={Signup} />
+
+                    {/*<AuthStackNav.Screen name="ResetPassword" component={ResetPassword} />*/}
+                </>
+            }
+
+        </AuthStackNav.Navigator>
+    );
+};
+
+class MainNavigation extends  Component{
+    constructor(props) {
+        super(props);
+    }
+
+    componentDidMount() {
+        this.props.onTryAutoSignup(); // auto-signin
+    }
+
+    render() {
+        return (
+            <NavigationContainer>
+                <Tab.Navigator
+                    screenOptions={({ route }) => ({
+                        tabBarIcon: ({ focused, color, size }) => {
+                            let iconName;
+
+                            if (route.name === 'FAQ') {
+                                iconName = focused
+                                    ? 'ios-information-circle'
+                                    : 'ios-information-circle-outline';
+                            } else if (route.name === 'Rides') {
+                                iconName = focused ? 'ios-list-box' : 'ios-list';
+                            }else if (route.name === 'Home'){
+                                iconName = focused ? 'ios-home' : 'md-home';
+                            }else if (route.name === 'Login'){
+                                if(this.props.isAuthenticated){
+                                    iconName="ios-person"
+                                }else{
+                                    iconName="ios-log-in"
+                                }
+                            }else if(route.name === 'Profile'){
                                 iconName="ios-person"
-                            }else{
-                                iconName="ios-log-in"
                             }
 
-                        }
+                            // You can return any component that you like here!
+                            return <Ionicons name={iconName} size={size} color={color} />;
+                        },
+                    })}
+                    tabBarOptions={{
+                        activeTintColor: 'tomato',
+                        inactiveTintColor: 'gray',
+                    }}
+                >
+                    <Tab.Screen name="Home" component={Home}/>
+                    <Tab.Screen name="Rides" component={RideStack}/>
+                    <Tab.Screen name="FAQ" component={FAQ}/>
+                    <Tab.Screen name={!this.props.isAuthenticated ? "Login" : "Profile"} component={AuthStack} initialParams={{isAuthenticated: this.props.isAuthenticated}}/>
+                </Tab.Navigator>
 
-                        // You can return any component that you like here!
-                        return <Ionicons name={iconName} size={size} color={color} />;
-                    },
-                })}
-                tabBarOptions={{
-                    activeTintColor: 'tomato',
-                    inactiveTintColor: 'gray',
-                }}
-            >
-                <Tab.Screen name="Home" component={Home}/>
-                <Tab.Screen name="Rides" component={RideStack}/>
-                <Tab.Screen name="FAQ" component={FAQ}/>
-                <Tab.Screen name="Login" component={AuthStack}/>
-            </Tab.Navigator>
-
-        </NavigationContainer>
-    )
-
-};
+            </NavigationContainer>
+        )
+    }
+}
 
 const mapStateToProps = state => {
     return {
@@ -97,8 +156,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         logout: () => dispatch(authActions.logout()),
+        onTryAutoSignup: () => dispatch(authActions.authCheckState())
     }
 };
 
-
+connect(mapStateToProps, mapDispatchToProps)(AuthStack);
 export default connect(mapStateToProps, mapDispatchToProps)(MainNavigation);
