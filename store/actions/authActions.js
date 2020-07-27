@@ -113,9 +113,7 @@ export const authLogin = (username, password) => {
             AsyncStorage.setItem('user', JSON.stringify(user), error=>{
                 console.log(error);
             });
-            AsyncStorage.setItem('lala', 5, error=>{
-                console.log(error);
-            });
+
 
             dispatch(authSuccess(user));
         }).catch( error => {
@@ -167,30 +165,19 @@ export const authSignup = (
 };
 
 
-export const authCheckState = () => {
+export const authCheckState =  () => {
     return dispatch => {
-        const jsonValue = (AsyncStorage.getItem("user"));
-        // console.log(jsonValue);
-        const user = jsonValue ? (jsonValue) : null ;
-        // console.log(user);
-        if (user === undefined || user === null) {
-            // console.log('123123');
-            // dispatch(logout());
-        } else {
-            // console.log('edwwww');
+            AsyncStorage.getItem("user").then( user => {
+            user = JSON.parse(user);
 
-            // get again my requests!
-            axios.get(API_HTTP + 'api/getmyrequests/',
-                {
-                    headers:
-                        {
-                            "Authorization": "JWT "+ user.token,
-                            "Content-type": "application/json"
-                        }
-                }).then( response => {
-                user.user.request = response.data;
+            if (user === undefined || user === null) {
+                // console.log('123123');
+                // dispatch(logout());
+            } else {
+                console.log('edwwww');
 
-                axios.get(API_HTTP + 'api/getallrequests/',
+                // get again my requests!
+                axios.get(API_HTTP + 'api/getmyrequests/',
                     {
                         headers:
                             {
@@ -198,36 +185,39 @@ export const authCheckState = () => {
                                 "Content-type": "application/json"
                             }
                     }).then( response => {
-                    user.user.requestsOfMyRides = response.data;
-                    axios.get(API_HTTP + 'notifier/getall/', {
-                        headers:
-                            {
-                                "Authorization": "JWT "+ user.token,
-                                "Content-type": "application/json"
-                            }
-                    }).then( response => {
-                        user.user.notifications = response.data;
-                        // console.log(response);
+                    user.user.request = response.data;
 
-                        dispatch(authSuccess(user));
-                    })
+                    axios.get(API_HTTP + 'api/getallrequests/',
+                        {
+                            headers:
+                                {
+                                    "Authorization": "JWT "+ user.token,
+                                    "Content-type": "application/json"
+                                }
+                        }).then( response => {
+                        user.user.requestsOfMyRides = response.data;
+                        axios.get(API_HTTP + 'notifier/getall/', {
+                            headers:
+                                {
+                                    "Authorization": "JWT "+ user.token,
+                                    "Content-type": "application/json"
+                                }
+                        }).then( response => {
+                            user.user.notifications = response.data;
+                            // console.log(response);
 
-
-
+                            dispatch(authSuccess(user));
+                        })
+                    }).catch( error => {
+                        console.log(error.response);
+                        dispatch(authFail(error));
+                    });
                 }).catch( error => {
-                    // console.log(error.response);
+                    console.log(error.response);
                     dispatch(authFail(error));
                 });
-
-
-            }).catch( error => {
-                // console.log(error.response);
-                dispatch(authFail(error));
-            });
-
-
-
-        }
+            }
+        });
     }
 };
 

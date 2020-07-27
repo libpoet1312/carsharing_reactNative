@@ -9,20 +9,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 class Home extends Component {
     render() {
-        let value;
-        // try{
-        //     let jsonValue = (AsyncStorage.getItem('user'));
-        //     value = jsonValue != null ? JSON.parse(jsonValue):null;
-        // }catch (e) {
-        //     console.log(e);
-        // }
-
-        try{
-            let lala = (AsyncStorage.getItem('lala'));
-            value = lala != null ? lala:null;
-        }catch (e) {
-            console.log(e);
-        }
 
 
         return (
@@ -50,7 +36,7 @@ class Home extends Component {
                         <Text>Logout</Text>
                     </Button>
                     <Text>
-                        123{value}
+                        123
                     </Text>
 
                 </View>
