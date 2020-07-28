@@ -150,14 +150,18 @@ class MyProfile extends Component {
                             </CardItem>
                             <CardItem>
                                 <Left>
-                                    <Button danger iconLeft>
+                                    <Button danger iconLeft
+                                    onPress={()=>this.props.navigation.navigate('Cars')}
+                                    >
                                         <Icon name="car" type='MaterialCommunityIcons' />
                                         <Text>Cars</Text>
                                     </Button>
                                 </Left>
 
                                 <Right>
-                                    <Button warning iconRight>
+                                    <Button warning iconRight
+                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                    >
                                         <Text>Settings</Text>
                                         <Icon name="settings" />
                                     </Button>

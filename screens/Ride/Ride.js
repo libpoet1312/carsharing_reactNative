@@ -36,10 +36,6 @@ class Ride extends Component {
         this.props.fetchRide(this.props.route.params.pk);
     }
 
-
-
-
-
     onMapPress = (e) => {
         this.setState({
             coordinates: [
@@ -90,6 +86,7 @@ class Ride extends Component {
         if(this.props.loading || !this.props.ride ){
             return <ActivityIndicator size={'large'}/>
         }
+
         const ride = this.props.ride;
         return (
             <View style={styles.container}>
@@ -140,44 +137,42 @@ class Ride extends Component {
                     </Card> : null
                 }
 
-                {/*<Card>*/}
-                {/*    <CardItem>*/}
-                {/*        <MapView*/}
-                {/*            initialRegion={{*/}
-                {/*                latitude: LATITUDE,*/}
-                {/*                longitude: LONGITUDE,*/}
-                {/*                latitudeDelta: LATITUDE_DELTA,*/}
-                {/*                longitudeDelta: LONGITUDE_DELTA,*/}
-                {/*            }}*/}
-                {/*            style={styles.mapStyle}*/}
-                {/*            ref={c => this.mapView = c} // eslint-disable-line react/jsx-no-bind*/}
-                {/*            onPress={this.onMapPress}*/}
-                {/*        >*/}
-                {/*            <MapViewDirections*/}
-                {/*                origin={this.props.ride.origin}*/}
-                {/*                destination={this.props.ride.destination}*/}
-                {/*                waypoints={this.props.coordinates.slice(1,-1)}*/}
-                {/*                mode='DRIVING'*/}
-                {/*                region='GR'*/}
-                {/*                apikey={GOOGLE_MAPS_APIKEY}*/}
-                {/*                language='en'*/}
-                {/*                strokeWidth={4}*/}
-                {/*                strokeColor="black"*/}
-                {/*                onStart={(params) => {*/}
-                {/*                    console.log(`Started routing between "${params.origin}" and "${params.destination}"${(params.waypoints.length ? " using waypoints: " + params.waypoints.join(', ') : "")}`);*/}
-                {/*                }}*/}
-                {/*                onReady={this.onReady}*/}
-                {/*                onError={(errorMessage) => {*/}
-                {/*                    console.log(errorMessage);*/}
-                {/*                }}*/}
-                {/*                resetOnChange={false}*/}
-                {/*            />*/}
-                {/*        </MapView>*/}
-                {/*    </CardItem>*/}
+                <Card>
+                    <CardItem>
+                        <MapView
+                            initialRegion={{
+                                latitude: LATITUDE,
+                                longitude: LONGITUDE,
+                                latitudeDelta: LATITUDE_DELTA,
+                                longitudeDelta: LONGITUDE_DELTA,
+                            }}
+                            style={styles.mapStyle}
+                            ref={c => this.mapView = c} // eslint-disable-line react/jsx-no-bind
+                            onPress={this.onMapPress}
+                        >
+                            <MapViewDirections
+                                origin={this.props.ride.origin}
+                                destination={this.props.ride.destination}
+                                waypoints={[this.props.origin, this.props.destination].slice(1,-1)}
+                                mode='DRIVING'
+                                region='GR'
+                                apikey={GOOGLE_MAPS_APIKEY}
+                                language='en'
+                                strokeWidth={4}
+                                strokeColor="black"
+                                onStart={(params) => {
+                                    console.log(`Started routing between "${params.origin}" and "${params.destination}"${(params.waypoints.length ? " using waypoints: " + params.waypoints.join(', ') : "")}`);
+                                }}
+                                onReady={this.onReady}
+                                onError={(errorMessage) => {
+                                    console.log(errorMessage);
+                                }}
+                                resetOnChange={false}
+                            />
+                        </MapView>
+                    </CardItem>
 
-                {/*</Card>*/}
-
-
+                </Card>
             </View>
         );
     }
@@ -186,7 +181,7 @@ class Ride extends Component {
 const mapStateToProps = (state) => {
     return {
         ride: state.ride.ride,
-        coordinates: [state.ride.ride.origin, state.ride.ride.destination],
+        // coordinates: [state.ride.ride.origin, state.ride.ride.destination],
         error: state.ride.error,
         loading: state.ride.loading,
         user: state.auth.user,

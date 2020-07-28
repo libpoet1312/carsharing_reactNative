@@ -24,6 +24,8 @@ import Login from "./components/LoginForm/Login";
 import Signup from "./components/Signup/SignUp";
 import MyProfile from "./screens/MyProfile/MyProfile";
 import Settings from "./screens/Settings/Settings";
+import Cars from "./screens/Cars/Cars";
+import AddCar from "./components/AddCar/AddCar";
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
@@ -63,7 +65,7 @@ const AuthStack = (props) => {
         <AuthStackNav.Navigator>
             {props.route.params.isAuthenticated ?
                 <>
-                    <AuthStackNav.Screen name="Profile" component={SideBar}
+                    <AuthStackNav.Screen name="Profile" component={MyProfile}
                         options={{
                             headerRight: () => (
                                 <View style={{flexDirection: 'row',alignItems: 'center',justifyContent: 'center',}}>
@@ -107,7 +109,11 @@ const AuthStack = (props) => {
                             ),
                         }}
                     />
-                    {/*<AuthStackNav.Screen name="Settings" component={SettingsScreen} />*/}
+                    <AuthStackNav.Screen name="Settings" component={Settings} />
+                    <AuthStackNav.Screen name="Cars" component={Cars} />
+                    <AuthStackNav.Screen name="AddCar" component={AddCar} options={{
+                        headerTitle: 'Add Car'
+                    }}/>
                 </>
                 :
                 <>
