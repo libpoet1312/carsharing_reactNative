@@ -1,8 +1,19 @@
 import React, {Component} from 'react';
+import t from 'tcomb-form-native';
+import { Button, TextInput, View, Text, StyleSheet,TouchableHighlight } from "react-native";
 
-import { Button, TextInput, View, Text, StyleSheet } from "react-native";
-import SignupFormComponent from 'rn-formly';
+let Form = t.form.Form;
 
+let Car = t.struct({
+    plate: t.String,              // a required string
+    model: t.maybe(t.String),  // an optional string
+    color: t.String,               // a required number
+    brand: t.String,
+    year: t.String,
+
+});
+
+let options = {};
 
 class AddCar extends Component{
 
@@ -14,60 +25,30 @@ class AddCar extends Component{
         plate: ''
     };
 
+    onPress = () => {
+        // call getValue() to get the values of the form
+        const value = this.form.getValue();
+        if (value) { // if validation fails, value will be null
+            console.log(value); // value here is an instance of Person
+        }
+    };
+
     render() {
 
-        const inputFields = [
-            {
-                key: 'name',
-                type: 'text',
-                label: `Your Full Name`,
-                required: true,
-                helper: 'Using your real name would make it more likely for you to get a match',
-                templateOptions: {
-                    componentProps: {
-                        placeholder: 'Frank Murphy'
-                    }
-                }
-            },
-            {
-                key: 'otp',
-                type: 'otp',
-                label: 'Enter OTP',
-                helper: '(optional) but try to enter incorrect date',
-                templateOptions: {
-                    noOfTextInput: 5,
-                }
-            }]
-
-        const justLogDataFromForms = (index, key, currentValue,  payload) => {
-            console.log('Logging from Parent log');
-            console.log(index, key, currentValue, payload)
-        };
 
         return (
-            // <View style={styles.container}>
-            //     <View style={styles.InputContainer}>
-            //         <TextInput
-            //             style={styles.body}
-            //             placeholder="Plate"
-            //             onChangeText={text => this.setState({ plate: text })}
-            //             value={this.state.plate}
-            //             placeholderTextColor={'gray'}
-            //             underlineColorAndroid="transparent"
-            //             clearButtonMode='always'
-            //             autoCapitalize={'characters'}
-            //         />
-            //     </View>
-            // </View>
-            <SignupFormComponent
-                inputFields={inputFields}
-                globalButtonText={'Next'}
-                onButtonClick={justLogDataFromForms}
-                defaultColor={'green'}
-                progressBarProps={{
-                    blink: false
-                }}
-            />
+
+            <View style={styles.container}>
+                {/* display */}
+                <Form
+                    ref="form"
+                    type={Car}
+                    options={options}
+                />
+                <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
+                    <Text style={styles.buttonText}>Add Car</Text>
+                </TouchableHighlight>
+            </View>
 
         )
     }
@@ -75,24 +56,48 @@ class AddCar extends Component{
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: "center"
+        justifyContent: 'center',
+        marginTop: 50,
+        padding: 20,
+        backgroundColor: '#ffffff',
     },
-    InputContainer: {
-        width: 200,
-        marginTop: 30,
+    buttonText: {
+        fontSize: 18,
+        color: 'white',
+        alignSelf: 'center'
+    },
+    button: {
+        height: 36,
+        backgroundColor: '#48BBEC',
+        borderColor: '#48BBEC',
         borderWidth: 1,
-        borderStyle: "solid",
-        borderColor: 'gray',
-        borderRadius: 15
-    },
-    body: {
-        height: 45,
-        paddingLeft: 20,
-        paddingRight: 20,
-        color: 'black',
-        textAlign: 'center'
-    },
+        borderRadius: 8,
+        marginBottom: 10,
+        alignSelf: 'stretch',
+        justifyContent: 'center'
+    }
 });
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         alignItems: "center"
+//     },
+//     InputContainer: {
+//         width: 200,
+//         marginTop: 30,
+//         borderWidth: 1,
+//         borderStyle: "solid",
+//         borderColor: 'gray',
+//         borderRadius: 15
+//     },
+//     body: {
+//         height: 45,
+//         paddingLeft: 20,
+//         paddingRight: 20,
+//         color: 'black',
+//         textAlign: 'center'
+//     },
+// });
 
 export default AddCar;
