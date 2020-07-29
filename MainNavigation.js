@@ -59,6 +59,11 @@ const SideBar = () => {
     </Drawer.Navigator>
 };
 
+const logoutHandler = (props) => {
+    props.route.params.logout();
+    props.navigation.navigate('Home');
+};
+
 
 const AuthStack = (props) => {
     return (
@@ -96,7 +101,7 @@ const AuthStack = (props) => {
                                     </View>
                                     <View>
                                         <Button transparent
-                                                onPress={()=>props.route.params.logout()}
+                                                onPress={()=>logoutHandler(props)}
                                                 style={{marginRight: 10}}
                                         >
                                             <Icon name='log-out'/>
@@ -181,7 +186,7 @@ class MainNavigation extends  Component{
                     <Tab.Screen name="Home" component={Home}/>
                     <Tab.Screen name="Rides" component={RideStack}/>
                     <Tab.Screen name="FAQ" component={FAQ}/>
-                    <Tab.Screen name={!this.props.isAuthenticated ? "Login" : "Profile"} component={AuthStack} initialParams={{isAuthenticated: this.props.isAuthenticated, logout: this.props.logout}}/>
+                    <Tab.Screen name={!this.props.isAuthenticated ? "Login" : "Profile"} component={AuthStack} initialParams={{isAuthenticated: this.props.isAuthenticated, logout: ()=>this.props.logout()}}/>
                 </Tab.Navigator>
 
             </NavigationContainer>

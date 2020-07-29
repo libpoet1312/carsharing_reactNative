@@ -1,6 +1,11 @@
 import React, {Component} from 'react';
 import t from 'tcomb-form-native';
-import { Button, TextInput, View, Text, StyleSheet,TouchableHighlight } from "react-native";
+import {Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ScrollView} from "react-native";
+import axios from 'axios';
+import {API_HTTP} from "../../config";
+import {connect} from 'react-redux';
+
+import {Container, Content} from "native-base";
 
 let Form = t.form.Form;
 
@@ -9,7 +14,7 @@ let Car = t.struct({
     model: t.maybe(t.String),  // an optional string
     color: t.String,               // a required number
     brand: t.String,
-    year: t.String,
+    year: t.Number,
 
 });
 
@@ -17,38 +22,30 @@ let options = {};
 
 class AddCar extends Component{
 
-    someFunction = () => {
-        alert('change')
-    };
-
-    state = {
-        plate: ''
-    };
-
     onPress = () => {
         // call getValue() to get the values of the form
-        const value = this.form.getValue();
+        const value = this.refs.form.getValue();
         if (value) { // if validation fails, value will be null
             console.log(value); // value here is an instance of Person
+            // this.handleAdd(value, this.props.navigation);
+            this.props.route.params.addCar(value);
         }
     };
 
     render() {
-
-
         return (
-
-            <View style={styles.container}>
-                {/* display */}
-                <Form
-                    ref="form"
-                    type={Car}
-                    options={options}
-                />
-                <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
-                    <Text style={styles.buttonText}>Add Car</Text>
-                </TouchableHighlight>
-            </View>
+            <Container style={styles.container}>
+                <Content>
+                    <Form
+                        ref="form"
+                        type={Car}
+                        options={options}
+                    />
+                    <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
+                        <Text style={styles.buttonText}>Add Car</Text>
+                    </TouchableHighlight>
+                </Content>
+            </Container>
 
         )
     }
@@ -56,8 +53,6 @@ class AddCar extends Component{
 
 const styles = StyleSheet.create({
     container: {
-        justifyContent: 'center',
-        marginTop: 50,
         padding: 20,
         backgroundColor: '#ffffff',
     },
@@ -100,4 +95,10 @@ const styles = StyleSheet.create({
 //     },
 // });
 
-export default AddCar;
+const mapStateToProps = (state) => {
+    return{
+        token: state.auth.user.token
+    }
+};
+
+export default connect(mapStateToProps)(AddCar);
