@@ -8,6 +8,7 @@ import * as rideActions from '../../store/actions/rideActions';
 
 import MapViewDirections from 'react-native-maps-directions';
 import {GOOGLE_MAPS_KEY} from "../../config";
+import JoinModal from "../../components/JoinModal/JoinModal";
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -28,13 +29,26 @@ class Ride extends Component {
 
     state={
         distance: 0,
-        duration: ''
+        duration: '',
+        isModalVisible: false
     };
 
 
     componentDidMount() {
         this.props.fetchRide(this.props.route.params.pk);
     }
+
+    toggleModal = () => {
+        this.setState({
+            isModalVisible: true
+        })
+    };
+
+    onDismiss = () => {
+        this.setState({
+            isModalVisible: false
+        })
+    };
 
     onMapPress = (e) => {
         this.setState({
@@ -130,49 +144,57 @@ class Ride extends Component {
                 {this.props.isAuthenticated?
                     <Card transparent>
                         <CardItem transparent>
-                            <Button large info>
+                            <Button large info
+                            onPress={()=>this.toggleModal()}
+                            >
                                 <Text>Join</Text>
                             </Button>
                         </CardItem>
                     </Card> : null
                 }
 
-                <Card>
-                    <CardItem>
-                        <MapView
-                            initialRegion={{
-                                latitude: LATITUDE,
-                                longitude: LONGITUDE,
-                                latitudeDelta: LATITUDE_DELTA,
-                                longitudeDelta: LONGITUDE_DELTA,
-                            }}
-                            style={styles.mapStyle}
-                            ref={c => this.mapView = c} // eslint-disable-line react/jsx-no-bind
-                            onPress={this.onMapPress}
-                        >
-                            <MapViewDirections
-                                origin={this.props.ride.origin}
-                                destination={this.props.ride.destination}
-                                waypoints={[this.props.origin, this.props.destination].slice(1,-1)}
-                                mode='DRIVING'
-                                region='GR'
-                                apikey={GOOGLE_MAPS_APIKEY}
-                                language='en'
-                                strokeWidth={4}
-                                strokeColor="black"
-                                onStart={(params) => {
-                                    console.log(`Started routing between "${params.origin}" and "${params.destination}"${(params.waypoints.length ? " using waypoints: " + params.waypoints.join(', ') : "")}`);
-                                }}
-                                onReady={this.onReady}
-                                onError={(errorMessage) => {
-                                    console.log(errorMessage);
-                                }}
-                                resetOnChange={false}
-                            />
-                        </MapView>
-                    </CardItem>
+                {/*<Card>*/}
+                {/*    <CardItem>*/}
+                {/*        <MapView*/}
+                {/*            initialRegion={{*/}
+                {/*                latitude: LATITUDE,*/}
+                {/*                longitude: LONGITUDE,*/}
+                {/*                latitudeDelta: LATITUDE_DELTA,*/}
+                {/*                longitudeDelta: LONGITUDE_DELTA,*/}
+                {/*            }}*/}
+                {/*            style={styles.mapStyle}*/}
+                {/*            ref={c => this.mapView = c} // eslint-disable-line react/jsx-no-bind*/}
+                {/*            onPress={this.onMapPress}*/}
+                {/*        >*/}
+                {/*            <MapViewDirections*/}
+                {/*                origin={this.props.ride.origin}*/}
+                {/*                destination={this.props.ride.destination}*/}
+                {/*                waypoints={[this.props.origin, this.props.destination].slice(1,-1)}*/}
+                {/*                mode='DRIVING'*/}
+                {/*                region='GR'*/}
+                {/*                apikey={GOOGLE_MAPS_APIKEY}*/}
+                {/*                language='en'*/}
+                {/*                strokeWidth={4}*/}
+                {/*                strokeColor="black"*/}
+                {/*                onStart={(params) => {*/}
+                {/*                    console.log(`Started routing between "${params.origin}" and "${params.destination}"${(params.waypoints.length ? " using waypoints: " + params.waypoints.join(', ') : "")}`);*/}
+                {/*                }}*/}
+                {/*                onReady={this.onReady}*/}
+                {/*                onError={(errorMessage) => {*/}
+                {/*                    console.log(errorMessage);*/}
+                {/*                }}*/}
+                {/*                resetOnChange={false}*/}
+                {/*            />*/}
+                {/*        </MapView>*/}
+                {/*    </CardItem>*/}
 
-                </Card>
+                {/*</Card>*/}
+                <JoinModal
+                    visible={this.state.isModalVisible}
+                    toggleModal={()=>this.toggleModal}
+                    onDismiss={this.onDismiss}
+                    vacant={ride.vacant_seats}
+                />
             </View>
         );
     }

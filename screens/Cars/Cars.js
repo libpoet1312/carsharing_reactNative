@@ -239,6 +239,7 @@ class Cars extends Component {
                     <SwipeListView
                         useFlatList={true}
                         data={this.state.dataSource}
+                        keyExtractor={(item, index) => item.plate}
                         renderItem={this.renderItem}
                         refreshing={this.state.loading}
                         onRefresh={() => this.fetchCars()}

@@ -48,8 +48,6 @@ class App extends Component{
                 loading: false
             });
         });
-
-
     }
 
     render() {
