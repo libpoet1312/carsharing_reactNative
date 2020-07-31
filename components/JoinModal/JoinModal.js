@@ -4,11 +4,10 @@ import {View, Text, Modal, StyleSheet, TextInput, TouchableOpacity} from "react-
 import {Container, Icon,Header, Button} from "native-base";
 
 import NumericInput from 'react-native-numeric-input'
-import {color} from "react-native-reanimated";
 
 const JoinModal = (props) => {
     const [noOfSeats, setSeats] = useState(1);
-
+    const [message, setMessage] = useState('');
 
 
     return (
@@ -29,27 +28,41 @@ const JoinModal = (props) => {
                     </Header>
                     <Container style={styles.container}>
                         <Text>Join</Text>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
 
-                            <NumericInput
-                                value={noOfSeats}
-                                onChange={value => setSeats(value)}
-                                onLimitReached={(isMax,msg) => console.log(`Max vacant seats are: ${props.vacant}`)}
-                                minValue={1}
-                                maxValue={props.vacant}
-                                totalWidth={240}
-                                totalHeight={50}
-                                iconSize={25}
-                                step={1}
-                                valueType='integer'
-                                rounded
-                                textColor='#B0228C'
-                                iconStyle={{ color: 'white' }}
-                                rightButtonBackgroundColor='#EA3788'
-                                leftButtonBackgroundColor='#E56B70'/>
-                                reachMaxIncIconStyle={}
-
+                        <NumericInput
+                            containerStyle={{marginTop: 50, marginBottom: 20}}
+                            value={noOfSeats}
+                            onChange={value => setSeats(value)}
+                            onLimitReached={(isMax,msg) => console.log(`Max vacant seats are: ${props.vacant}`)}
+                            minValue={1}
+                            maxValue={props.vacant}
+                            totalWidth={240}
+                            totalHeight={50}
+                            iconSize={25}
+                            step={1}
+                            valueType='integer'
+                            rounded
+                            textColor='#B0228C'
+                            iconStyle={{ color: 'white' }}
+                            rightButtonBackgroundColor='#EA3788'
+                            leftButtonBackgroundColor='#E56B70'
+                            reachMaxIncIconStyle={{color: 'gray'}}
+                            reachMinDecIconStyle={{color: 'gray'}}
+                        />
+                        <TextInput
+                            style={styles.message}
+                            value={message}
+                            placeholder='Optional Message'
+                            onChangeText={e=>setMessage(e.target.value)}
+                            multiline={true}
+                        />
+                        <View>
+                            <Button style={{alignSelf: 'center', justifyContent: 'center', marginTop: 50, width: 150}} info rounded large
+                                    onPress={()=>props.joinHandler(noOfSeats, message)}>
+                                <Text style={{fontWeight: 'bold'}}>Send Request</Text>
+                            </Button>
                         </View>
+
                     </Container>
                 </>
             </Modal>
@@ -65,13 +78,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    seats: {
-        width: 60,
+    message: {
+        marginTop: 20,
+        width: 235,
         height: 50,
-        borderWidth: 2,
+        borderWidth: 1,
         borderRadius: 10,
-        fontWeight: 'bold',
-        fontSize: 25,
         color: 'black',
         textAlign: 'center',
         alignContent: 'center'

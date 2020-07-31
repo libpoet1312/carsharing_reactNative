@@ -5,6 +5,7 @@ import MapView from 'react-native-maps';
 
 import {connect} from "react-redux";
 import * as rideActions from '../../store/actions/rideActions';
+import * as requestsActions from '../../store/actions/requestActions';
 
 import MapViewDirections from 'react-native-maps-directions';
 import {GOOGLE_MAPS_KEY} from "../../config";
@@ -30,12 +31,50 @@ class Ride extends Component {
     state={
         distance: 0,
         duration: '',
-        isModalVisible: false
+        isModalVisible: false,
+        isOwner: false,
+        hasJoined: false,
+        isAccepted: false
     };
 
 
     componentDidMount() {
         this.props.fetchRide(this.props.route.params.pk);
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        // console.log('[componentDidUpdate]');
+
+        // console.log(this.props.isAuthenticated);
+        if((prevProps.loading && !this.props.loading) || this.props.requests!==prevProps.requests){
+            // console.log('edw');
+            console.log(this.props.isAuthenticated);
+            if(this.props.isAuthenticated){
+                if(this.props.ride.uploader.username===this.props.user.username){
+                    this.setState({isOwner: true});
+                }
+                // console.log(this.props.requests);
+
+
+                // handle if user has already applied!
+                const obj = this.props.requests.find( req => {
+                    // console.log(req, this.props.ride.pk);
+                    return req.ride.id === this.props.ride.pk
+                });
+                console.log(obj);
+                if(obj){
+                    if(obj.accepted){
+                        this.setState({isAccepted: true})
+                    }else{
+                        this.setState(
+                            {hasJoined: true}
+                        )
+                    }
+                }else{
+                    this.setState({hasJoined: false, isAccepted: false})
+                }
+            }
+        }
     }
 
     toggleModal = () => {
@@ -96,23 +135,83 @@ class Ride extends Component {
         });
     }
 
+    joinHandler = (seats, msg) => {
+        this.onDismiss();
+        const token = this.props.token;
+
+        // console.log(this.props.ride.pk, user.token ,seats, msg);
+
+        //send join request to server!
+
+
+        this.props.joinRequest(this.props.ride.pk, token ,seats, msg);
+        this.setState(
+            {hasJoined: true}
+        );
+    };
+
+    unJoinHandler = (ride) => {
+        console.log('unJoinHandler');
+        const token = this.props.token;
+        const req = this.props.requests.find( el => {
+            // console.log(el);
+            return el.ride.id===ride.pk;
+        });
+        // console.log(req.pk);
+        this.props.unJoin(req.pk, token, ride.pk);
+        this.setState(
+            {hasJoined: false, isAccepted: false}
+        );
+
+    };
+
     render() {
         if(this.props.loading || !this.props.ride ){
             return <ActivityIndicator size={'large'}/>
         }
 
+
+
         const ride = this.props.ride;
+
+
+        let button = <Button large info
+                        onPress={()=>this.toggleModal()}>
+                    <Text>Join</Text>
+                </Button>;
+
+        if(this.state.isOwner) {
+            button = <Button large warning
+                             onPress={()=>alert('edit')}>
+                <Text>Edit</Text>
+            </Button>;
+        }
+        if(this.state.hasJoined) {
+
+            console.log('joined');
+            button = (
+                <Button large danger
+                        onPress={()=>this.unJoinHandler(ride)}>
+                    <Text>Cancel Request</Text>
+                </Button>
+            )
+        }
+        if(this.state.isAccepted){
+            console.log('accepted');
+            button = (
+                <Button large danger
+                        onPress={()=>this.unJoinHandler(ride)}>
+                    <Text>Unjoin</Text>
+                </Button>
+            )
+        }
+
+
         return (
             <View style={styles.container}>
                 <Card style={{width: Dimensions.get('window').width,}}>
                     <Header noShadow style={{backgroundColor: 'white'}}>
-                        <Left>
-                            <Button transparent
-                                onPress={()=>this.props.navigation.goBack()}
-                            >
-                                <Icon name='arrow-back' style={{color: 'black'}} />
-                            </Button>
-                        </Left>
+                        <Left/>
                         <Body>
                             <Title style={{color: 'black'}}>{ride.origin} to {ride.destination}</Title>
                         </Body>
@@ -144,11 +243,7 @@ class Ride extends Component {
                 {this.props.isAuthenticated?
                     <Card transparent>
                         <CardItem transparent>
-                            <Button large info
-                            onPress={()=>this.toggleModal()}
-                            >
-                                <Text>Join</Text>
-                            </Button>
+                            {button}
                         </CardItem>
                     </Card> : null
                 }
@@ -194,6 +289,7 @@ class Ride extends Component {
                     toggleModal={()=>this.toggleModal}
                     onDismiss={this.onDismiss}
                     vacant={ride.vacant_seats}
+                    joinHandler={(seats, msg) => this.joinHandler(seats, msg)}
                 />
             </View>
         );
@@ -203,6 +299,7 @@ class Ride extends Component {
 const mapStateToProps = (state) => {
     return {
         ride: state.ride.ride,
+        token: state.auth.user.token,
         // coordinates: [state.ride.ride.origin, state.ride.ride.destination],
         error: state.ride.error,
         loading: state.ride.loading,
@@ -216,8 +313,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => {
     return {
         fetchRide: (pk) => dispatch(rideActions.fetchSingleRide(pk)),
-        // joinRequest: (pk, token, seats, message) => dispatch(requestsActions.joinRequest(pk, token, seats, message)),
-        // unJoin: (pk, token, ridePK) => dispatch(requestsActions.unJoin(pk, token, ridePK)),
+        joinRequest: (pk, token, seats, message) => dispatch(requestsActions.joinRequest(pk, token, seats, message)),
+        unJoin: (pk, token, ridePK) => dispatch(requestsActions.unJoin(pk, token, ridePK)),
     }
 };
 
