@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {View, Text, Button, StyleSheet, Dimensions, TextInput} from "react-native";
-import Login from "../../components/LoginForm/Login";
+import Login from "../Login/Login";
 import Signup from "../../components/Signup/SignUp";
 
 const { width, height } = Dimensions.get('screen');

@@ -19,8 +19,8 @@ import FAQ from "./screens/FAQ/FAQ";
 import { Ionicons } from '@expo/vector-icons';
 
 
-import Login from "./components/LoginForm/Login";
 import Signup from "./components/Signup/SignUp";
+import Login from "./screens/Login/Login";
 import MyProfile from "./screens/MyProfile/MyProfile";
 import Settings from "./screens/Settings/Settings";
 import Cars from "./screens/Cars/Cars";

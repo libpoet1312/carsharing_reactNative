@@ -299,7 +299,7 @@ class Ride extends Component {
 const mapStateToProps = (state) => {
     return {
         ride: state.ride.ride,
-        token: state.auth.user.token,
+        token: state.auth.user ? state.auth.user.token:null,
         // coordinates: [state.ride.ride.origin, state.ride.ride.destination],
         error: state.ride.error,
         loading: state.ride.loading,

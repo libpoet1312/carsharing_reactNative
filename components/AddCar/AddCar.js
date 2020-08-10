@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import t from 'tcomb-form-native';
-import {Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ScrollView} from "react-native";
-import axios from 'axios';
-import {API_HTTP} from "../../config";
+import { Text, StyleSheet, TouchableHighlight, } from "react-native";
+
 import {connect} from 'react-redux';
 
 import {Container, Content} from "native-base";
