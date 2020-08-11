@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, Text, View, StyleSheet, TextInput, TouchableOpacity, Dimensions, Image} from "react-native";
-import {Button, Icon} from "native-base";
 import logo from '../../assets/images/sustain.jpeg'
 import {connect} from 'react-redux';
 import * as actions from '../../store/actions/authActions';
 
-const { width, height } = Dimensions.get('screen');
+const { width,  } = Dimensions.get('screen');
 
 
 

@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
-import {Text, View, StyleSheet, TextInput, TouchableOpacity, Dimensions, ScrollView} from "react-native";
+import {Text, View, StyleSheet, TouchableOpacity, Dimensions, ScrollView} from "react-native";
 import {Button, Icon} from "native-base";
 let _ = require('lodash');
+import {connect} from "react-redux";
+import * as authActions from '../../store/actions/authActions';
 
 import t from 'tcomb-form-native';
 let Form = t.form.Form;
@@ -11,6 +13,7 @@ let Gender = t.enums({
     F: 'Female',
     O: 'Other',
 });
+
 
 let User = t.struct({
     email: t.String,
@@ -26,12 +29,10 @@ let User = t.struct({
 
 // clone the default stylesheet
 const stylesheet = _.cloneDeep(t.form.Form.stylesheet);
-// stylesheet.textbox.normal.color = '#00FF00';
-
-// stylesheet.textbox.normal.color = '#fff';
-stylesheet.helpBlock.normal.color = '#fff';
-stylesheet.formGroup.normal.color = '#fff';
-stylesheet.fieldset.color= '#fff';
+//
+// stylesheet.helpBlock.normal.color = '#fff';
+// stylesheet.formGroup.normal.color = '#fff';
+// stylesheet.fieldset.color= '#fff';
 
 const options = {
     stylesheet: stylesheet,
@@ -61,7 +62,7 @@ const options = {
     },
 };
 
-const { width, height } = Dimensions.get('screen');
+const { width, } = Dimensions.get('screen');
 
 class Signup extends Component{
 
@@ -77,14 +78,16 @@ class Signup extends Component{
         has_whatsup: '',
         has_viber: '',
         dob: ''
-
     };
-
 
 
     handleSubmit = () => {
         const value = this._form.getValue(); // use that ref to get the form value
         console.log('value: ', value);
+        if(value.password1!==value.password2){
+            alert('Passwords must match!');
+            return 0;
+        }
     };
 
     render() {
@@ -98,11 +101,10 @@ class Signup extends Component{
                 />
 
 
-                <TouchableOpacity
-                    style={styles.login}
+                <TouchableOpacity style={styles.singUpBtn}
+                                  onPress={()=>this.handleSubmit()}
                 >
-
-                    <Icon name="log-in" style={{fontSize: 50}} />
+                    <Text style={styles.singUpText}>SIGNUP</Text>
                 </TouchableOpacity>
 
 
@@ -113,25 +115,30 @@ class Signup extends Component{
                         <Icon name='arrow-back' />
                         <Text> Back    </Text>
                     </Button>
-
-                    <Button warning
-                            onPress={() => navigation.goBack()}
-                    >
-                        <Text>    Sign Up    </Text>
-                    </Button>
                 </View>
-
-
             </ScrollView>
 
         )
     }
-
-
-
 }
 
-export default Signup;
+const mapStateToProps = (state) => {
+    return {
+        loading: state.auth.loading,
+        error: state.auth.error
+    }
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onAuth: (username, email, password1, password2,
+                 phone_number, avatar, gender, country,
+                 has_whatsup, has_viber, dob) => dispatch(authActions.authSignup(username, email, password1, password2,
+            phone_number, avatar, gender, country, has_whatsup, has_viber, dob))
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Signup);
 
 const styles = StyleSheet.create({
     container: {
@@ -164,5 +171,18 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         borderWidth:1,
         backgroundColor: '#fafdff'
+    },
+    singUpBtn:{
+        // width:"80%",
+        backgroundColor:"#fb5b5a",
+        borderRadius:25,
+        height:50,
+        alignItems:"center",
+        justifyContent:"center",
+        marginTop:40,
+        marginBottom:10
+    },
+    singUpText:{
+        color:"white"
     },
 });
