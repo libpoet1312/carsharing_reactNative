@@ -108,14 +108,14 @@ class Signup extends Component{
                 </TouchableOpacity>
 
 
-                <View style={{flexDirection:'row', justifyContent: 'space-evenly', width: width, marginTop: 50}}>
-                    <Button iconLeft light
-                            onPress={() => navigation.goBack()}
-                    >
-                        <Icon name='arrow-back' />
-                        <Text> Back    </Text>
-                    </Button>
-                </View>
+                {/*<View style={{flexDirection:'row', justifyContent: 'space-evenly', width: width,}}>*/}
+                {/*    <Button iconLeft light*/}
+                {/*            onPress={() => navigation.goBack()}*/}
+                {/*    >*/}
+                {/*        <Icon name='arrow-back' />*/}
+                {/*        <Text> Back    </Text>*/}
+                {/*    </Button>*/}
+                {/*</View>*/}
             </ScrollView>
 
         )
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
         // backgroundColor: '#003f5c',
         padding: 20,
+
         // justifyContent: 'center',
         // alignItems: 'center'
     },
@@ -179,8 +180,8 @@ const styles = StyleSheet.create({
         height:50,
         alignItems:"center",
         justifyContent:"center",
-        marginTop:40,
-        marginBottom:10
+        marginTop:20,
+        // marginBottom:10
     },
     singUpText:{
         color:"white"

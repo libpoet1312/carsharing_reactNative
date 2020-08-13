@@ -1,4 +1,4 @@
-import React, { Component} from 'react';
+import React, { Component, useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -25,6 +25,8 @@ import MyProfile from "./screens/MyProfile/MyProfile";
 import Settings from "./screens/Settings/Settings";
 import Cars from "./screens/Cars/Cars";
 import AddCar from "./components/AddCar/AddCar";
+import JoinModal from "./components/JoinModal/JoinModal";
+import NotificationsModal from "./components/NotificationsModal/NotificationsModal";
 
 const Tab = createBottomTabNavigator();
 const RideStackNav = createStackNavigator();
@@ -89,17 +91,29 @@ const logoutHandler = (props) => {
     props.navigation.navigate('Home');
 };
 
+const toggleModal = () => {
+
+};
+
 
 const AuthStack = (props) => {
+    const [isModalVisible, toggle] = useState(false);
+
     return (
         <AuthStackNav.Navigator
             screenOptions={props.route.params.isAuthenticated ?
                 {
                     headerRight: () => (
                         <View style={{flexDirection: 'row',alignItems: 'center',justifyContent: 'center',}}>
+                            <NotificationsModal
+                                visible={isModalVisible}
+                                toggleModal={()=>toggle(!isModalVisible)}
+                                // onDismiss={onDismiss}
+                                notifications={props.route.params.notifications}
+                            />
                             <View style={{marginRight: 20}}>
                                 <TouchableOpacity
-                                    onPress={()=>alert('eee')}
+                                    onPress={()=>toggle(true)}
                                 >
                                     <IconBadge
                                         MainElement={
@@ -228,10 +242,18 @@ class MainNavigation extends  Component{
                 >
                     <Tab.Screen name="Home" component={Home}/>
                     <Tab.Screen name="Rides" component={RideStack}
-                                initialParams={{isAuthenticated: this.props.isAuthenticated, unreadNotificationsCount:this.state.unreadNotificationsCount, notifications: this.props.notifications, logout: ()=>this.props.logout()}}/>
+                                initialParams={{isAuthenticated: this.props.isAuthenticated,
+                                    unreadNotificationsCount:this.state.unreadNotificationsCount,
+                                    notifications: this.props.notifications,
+                                    logout: ()=>this.props.logout()}}
+                    />
                     <Tab.Screen name="FAQ" component={FAQ}/>
                     <Tab.Screen name={!this.props.isAuthenticated ? "Login" : "Profile"} component={AuthStack}
-                                initialParams={{isAuthenticated: this.props.isAuthenticated, unreadNotificationsCount:this.state.unreadNotificationsCount, notifications: this.props.notifications, logout: ()=>this.props.logout()}}/>
+                                initialParams={{isAuthenticated: this.props.isAuthenticated,
+                                    unreadNotificationsCount:this.state.unreadNotificationsCount,
+                                    notifications: this.props.notifications,
+                                    logout: ()=>this.props.logout()}}
+                    />
                 </Tab.Navigator>
 
             </NavigationContainer>

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, ListItem } from 'native-base';
-import { FlatList, ActivityIndicator, StyleSheet,View,SafeAreaView } from 'react-native';
+import {FlatList, ActivityIndicator, StyleSheet, View, SafeAreaView, ScrollView} from 'react-native';
 
 import axios from 'axios';
 import {API_HTTP} from "../../config";
@@ -11,38 +11,6 @@ class MyProfile extends Component {
     state = {
         user: null,
         loading: true,
-        data: [
-            { name: "Movies", header: true },
-            { name: "Interstellar", header: false },
-            { name: "Dark Knight", header: false },
-            { name: "Pop", header: false },
-            { name: "Pulp Fiction", header: false },
-            { name: "Burning Train", header: false },
-            { name: "Music", header: true },
-            { name: "Adams", header: false },
-            { name: "Nirvana", header: false },
-            { name: "Amrit Maan", header: false },
-            { name: "Oye Hoye", header: false },
-            { name: "Eminem", header: false },
-            { name: "Places", header: true },
-            { name: "Jordan", header: false },
-            { name: "Punjab", header: false },
-            { name: "Ludhiana", header: false },
-            { name: "Jamshedpur", header: false },
-            { name: "India", header: false },
-            { name: "People", header: true },
-            { name: "Jazzy", header: false },
-            { name: "Appie", header: false },
-            { name: "Baby", header: false },
-            { name: "Sunil", header: false },
-            { name: "Arrow", header: false },
-            { name: "Things", header: true },
-            { name: "table", header: false },
-            { name: "chair", header: false },
-            { name: "fan", header: false },
-            { name: "cup", header: false },
-            { name: "cube", header: false }
-        ],
     };
 
 
@@ -76,7 +44,7 @@ class MyProfile extends Component {
                 <Left />
                 <Body style={{ marginRight: 40 }}>
                     <Text style={{ fontWeight: "bold" }}>
-                        {item.name}
+                        {item.actor.username}
                     </Text>
                 </Body>
                 <Right />
@@ -89,6 +57,7 @@ class MyProfile extends Component {
         // fetch the requested user only if current user is authenticated!
         if(this.props.user){
             this.fetchUserHandler();
+            console.log(this.props.notifications);
         }
     }
 
@@ -169,8 +138,6 @@ class MyProfile extends Component {
                             </CardItem>
                         </Card>
                     </Content>
-
-
                 </Container>
             </>
         )
@@ -211,7 +178,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
     return {
         user: state.auth.user,
-        loading: state.auth.loading
+        loading: state.auth.loading,
+        notifications: state.auth.notifications,
     }
 };
 
