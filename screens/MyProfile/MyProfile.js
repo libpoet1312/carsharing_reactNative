@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, ListItem } from 'native-base';
 import {FlatList, ActivityIndicator, StyleSheet, View, SafeAreaView, ScrollView} from 'react-native';
-
+import { Divider, Badge } from 'react-native-elements';
 import axios from 'axios';
 import {API_HTTP} from "../../config";
 import {connect} from 'react-redux';
 
 class MyProfile extends Component {
-    // alert('profile');
     state = {
         user: null,
         loading: true,
@@ -38,26 +37,14 @@ class MyProfile extends Component {
         });
     };
 
-    renderItem = ({item}) =>{
-        return (
-            <ListItem itemDivider>
-                <Left />
-                <Body style={{ marginRight: 40 }}>
-                    <Text style={{ fontWeight: "bold" }}>
-                        {item.actor.username}
-                    </Text>
-                </Body>
-                <Right />
-            </ListItem>
-        );
-    };
+
 
     componentDidMount() {
         console.log('[componentDidMount]');
         // fetch the requested user only if current user is authenticated!
         if(this.props.user){
             this.fetchUserHandler();
-            console.log(this.props.notifications);
+            // console.log(this.props.notifications);
         }
     }
 
@@ -78,9 +65,9 @@ class MyProfile extends Component {
 
         return (
             <>
-                <Container >
+                <Container>
                     <Content>
-                        <Card >
+                        <Card>
                             <CardItem>
                                 <Body style={{alignItems: 'center', justifyContent: 'center', }}>
                                     <Thumbnail source={{uri: this.props.user.avatar}} style={styles.thumbnail}/>
@@ -109,7 +96,6 @@ class MyProfile extends Component {
                                 <Left style={{flexDirection: 'column', alignItems: 'center'}}>
                                     <Text style={styles.title}>Country:</Text>
                                     <Text style={styles.info}>{this.state.user.country}</Text>
-
                                 </Left>
 
                                 <Right style={{flexDirection: 'column', alignItems: 'center'}}>
@@ -137,6 +123,68 @@ class MyProfile extends Component {
                                 </Right>
                             </CardItem>
                         </Card>
+
+
+                        <Divider style={{marginTop: 15 ,backgroundColor: 'black', height: 3}} />
+
+                        <Card style={{marginTop: 15}}>
+                            <CardItem>
+                                <Left>
+                                    <Text style={{fontWeight: 'bold'}}>My Rides</Text>
+                                </Left>
+
+                                <Right>
+                                    <Button info icon
+                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                    >
+                                        <Icon name="ios-arrow-forward" />
+                                    </Button>
+                                </Right>
+                            </CardItem>
+                        </Card>
+
+                        <Card>
+                            <CardItem>
+                                <Left>
+                                    <Text style={{fontWeight: 'bold'}}>Requests of my Rides</Text>
+                                    <Badge
+                                        status="warning"
+                                        value={this.props.requestsOfMyRides.length}
+                                        containerStyle={{marginLeft: 5}}
+                                    />
+                                </Left>
+
+                                <Right>
+                                    <Button dark icon
+                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                    >
+                                        <Icon name="ios-arrow-forward" />
+                                    </Button>
+                                </Right>
+                            </CardItem>
+                        </Card>
+
+
+                        <Card>
+                            <CardItem>
+                                <Left>
+                                    <Text style={{fontWeight: 'bold'}}>My requests</Text>
+                                    <Badge
+                                        status="success"
+                                        value={this.props.requests.length}
+                                        containerStyle={{marginLeft: 5}}
+                                    />
+                                </Left>
+
+                                <Right>
+                                    <Button primary icon
+                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                    >
+                                        <Icon name="ios-arrow-forward" />
+                                    </Button>
+                                </Right>
+                            </CardItem>
+                        </Card>
                     </Content>
                 </Container>
             </>
@@ -153,8 +201,8 @@ const styles = StyleSheet.create({
     },
     thumbnail: {
         justifyContent: 'center',
-        width: 150,
-        height: 150,
+        width: 100,
+        height: 100,
         borderRadius: 100
     },
     username: {
@@ -180,6 +228,8 @@ const mapStateToProps = state => {
         user: state.auth.user,
         loading: state.auth.loading,
         notifications: state.auth.notifications,
+        requests: state.auth.requests,
+        requestsOfMyRides: state.auth.requestsOfMyRides,
     }
 };
 

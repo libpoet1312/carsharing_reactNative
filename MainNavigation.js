@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+
 import {Text, View, TouchableOpacity} from 'react-native';
 import {Button, Icon} from "native-base";
 
@@ -27,6 +28,7 @@ import Cars from "./screens/Cars/Cars";
 import AddCar from "./components/AddCar/AddCar";
 import JoinModal from "./components/JoinModal/JoinModal";
 import NotificationsModal from "./components/NotificationsModal/NotificationsModal";
+import MyHeader from "./components/MyHeader/MyHeader";
 
 const Tab = createBottomTabNavigator();
 const RideStackNav = createStackNavigator();
@@ -37,45 +39,9 @@ const RideStack = (props) => {
     return (
         <RideStackNav.Navigator
             initialRouteName="Rides"
-            screenOptions={props.route.params.isAuthenticated ? {
-                headerRight: () => (
-                    <View style={{flexDirection: 'row',alignItems: 'center',justifyContent: 'center',}}>
-                        <View style={{marginRight: 20}}>
-                            <TouchableOpacity
-                                onPress={()=>alert('eee')}
-                            >
-                                <IconBadge
-                                    MainElement={
-                                        <Icon name='notifications'/>
-                                    }
-                                    BadgeElement={
-                                        <Text style={{color:'#FFFFFF'}}>
-                                            {props.route.params.unreadNotificationsCount}
-                                        </Text>
-                                    }
-                                    IconBadgeStyle={
-                                        {
-                                            width:10,
-                                            height:15,
-                                            backgroundColor: '#ff001b',
-                                            marginRight: -10
-                                        }
-                                    }
-                                    Hidden={!(props.route.params.unreadNotificationsCount>0)}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <View>
-                            <Button transparent
-                                    onPress={()=>logoutHandler(props)}
-                                    style={{marginRight: 10}}
-                            >
-                                <Icon name='log-out'/>
-                            </Button>
-                        </View>
-                    </View>
-                ),
-            }:null}
+            screenOptions={
+                {headerRight: () => (<MyHeader />)}
+            }
         >
             <RideStackNav.Screen name="Rides" component={Rides} options={{
             }}/>
@@ -86,66 +52,13 @@ const RideStack = (props) => {
     )
 };
 
-const logoutHandler = (props) => {
-    props.route.params.logout();
-    props.navigation.navigate('Home');
-};
-
-const toggleModal = () => {
-
-};
-
 
 const AuthStack = (props) => {
-    const [isModalVisible, toggle] = useState(false);
 
     return (
         <AuthStackNav.Navigator
-            screenOptions={props.route.params.isAuthenticated ?
-                {
-                    headerRight: () => (
-                        <View style={{flexDirection: 'row',alignItems: 'center',justifyContent: 'center',}}>
-                            <NotificationsModal
-                                visible={isModalVisible}
-                                toggleModal={()=>toggle(!isModalVisible)}
-                                // onDismiss={onDismiss}
-                                notifications={props.route.params.notifications}
-                            />
-                            <View style={{marginRight: 20}}>
-                                <TouchableOpacity
-                                    onPress={()=>toggle(true)}
-                                >
-                                    <IconBadge
-                                        MainElement={
-                                            <Icon name='notifications'/>
-                                        }
-                                        BadgeElement={
-                                            <Text style={{color:'#FFFFFF'}}>2</Text>
-                                        }
-                                        IconBadgeStyle={
-                                            {
-                                                width:10,
-                                                height:15,
-                                                backgroundColor: '#ff001b',
-                                                marginRight: -10
-                                            }
-                                        }
-                                        Hidden={!(props.route.params.unreadNotificationsCount>0)}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            <View>
-                                <Button transparent
-                                        onPress={()=>logoutHandler(props)}
-                                        style={{marginRight: 10}}
-                                >
-                                    <Icon name='log-out'/>
-                                </Button>
-                            </View>
-                        </View>
-                    ),
-                }:null
-
+            screenOptions={
+                {headerRight: () => (<MyHeader navigation={props.navigation}/>)}
             }
         >
             {props.route.params.isAuthenticated ?
@@ -188,20 +101,23 @@ class MainNavigation extends  Component{
 
     componentDidMount() {
         this.props.onTryAutoSignup(); // auto-signin
+
+        const newArray = this.props.notifications.filter( notif => {
+            // console.log(notif);
+            return notif.unread===true
+        });
+        this.setState({ unreadNotificationsCount: newArray.length});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-
-        if(prevState.width!==this.state.width){
-            this.updateWindowDimensions();
-        }
         // when user logs in update notifications!
         if(prevProps.notifications!==this.props.notifications){
+            console.log('edw edw edw');
             const newArray = this.props.notifications.filter( notif => {
                 // console.log(notif);
                 return notif.unread===true
             });
-            this.setState({ unreadNotificationsCount: newArray.length})
+            this.setState({ unreadNotificationsCount: newArray.length});
         }
     }
 
@@ -242,17 +158,14 @@ class MainNavigation extends  Component{
                 >
                     <Tab.Screen name="Home" component={Home}/>
                     <Tab.Screen name="Rides" component={RideStack}
-                                initialParams={{isAuthenticated: this.props.isAuthenticated,
-                                    unreadNotificationsCount:this.state.unreadNotificationsCount,
-                                    notifications: this.props.notifications,
-                                    logout: ()=>this.props.logout()}}
                     />
                     <Tab.Screen name="FAQ" component={FAQ}/>
                     <Tab.Screen name={!this.props.isAuthenticated ? "Login" : "Profile"} component={AuthStack}
-                                initialParams={{isAuthenticated: this.props.isAuthenticated,
-                                    unreadNotificationsCount:this.state.unreadNotificationsCount,
-                                    notifications: this.props.notifications,
-                                    logout: ()=>this.props.logout()}}
+                                initialParams={{isAuthenticated: this.props.isAuthenticated}}
+                                options={this.state.unreadNotificationsCount ?
+                                    { tabBarBadge: this.state.unreadNotificationsCount }
+                                : { tabBarBadge: this.state.unreadNotificationsCount }
+                                }
                     />
                 </Tab.Navigator>
 
@@ -276,5 +189,5 @@ const mapDispatchToProps = dispatch => {
     }
 };
 
-connect(mapStateToProps, mapDispatchToProps)(AuthStack);
+// connect(mapStateToProps, mapDispatchToProps)(AuthStack);
 export default connect(mapStateToProps, mapDispatchToProps)(MainNavigation);

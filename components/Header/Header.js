@@ -10,7 +10,7 @@ const MyHeader = (props) => {
                         <Button
                             transparent
                             onPress={() => props.navigation.navigate("DrawerOpen")}>
-                            <Icon name="menu" />
+                            <Icon name="arrow-back" />
                         </Button>
                     </Left>
                     <Body>
