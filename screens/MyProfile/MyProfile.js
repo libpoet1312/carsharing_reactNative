@@ -156,7 +156,7 @@ class MyProfile extends Component {
 
                                 <Right>
                                     <Button dark icon
-                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                            onPress={()=>this.props.navigation.navigate('RequestsOfMyRides')}
                                     >
                                         <Icon name="ios-arrow-forward" />
                                     </Button>
@@ -178,7 +178,7 @@ class MyProfile extends Component {
 
                                 <Right>
                                     <Button primary icon
-                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                            onPress={()=>this.props.navigation.navigate('MyRequests')}
                                     >
                                         <Icon name="ios-arrow-forward" />
                                     </Button>

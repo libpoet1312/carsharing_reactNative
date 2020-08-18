@@ -17,7 +17,9 @@ class NotificationsModal extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+
         if(prevProps.notifications!==this.props.notifications){
+            console.log('notifications Update');
             this.getNotData(this.props.notifications)
         }
     }
@@ -71,7 +73,8 @@ class NotificationsModal extends Component {
         });
 
         newNotifications.sort( (a,b) => {
-            return a.sort.diff(b.sort)<=0
+            // return a.sort.diff(b.sort)<=0
+            return new Date(b.datetime) - new Date(a.datetime);
         });
 
         this.setState({notifications: newNotifications})

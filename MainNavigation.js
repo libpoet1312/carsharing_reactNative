@@ -1,13 +1,8 @@
 import React, { Component, useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-
-import {Text, View, TouchableOpacity} from 'react-native';
-import {Button, Icon} from "native-base";
-
-import IconBadge from 'react-native-icon-badge';
 
 import {connect} from 'react-redux';
 import * as authActions from './store/actions/authActions';
@@ -19,16 +14,15 @@ import Ride from "./screens/Ride/Ride";
 import FAQ from "./screens/FAQ/FAQ";
 import { Ionicons } from '@expo/vector-icons';
 
-
 import Signup from "./components/Signup/SignUp";
 import Login from "./screens/Login/Login";
 import MyProfile from "./screens/MyProfile/MyProfile";
 import Settings from "./screens/Settings/Settings";
 import Cars from "./screens/Cars/Cars";
 import AddCar from "./components/AddCar/AddCar";
-import JoinModal from "./components/JoinModal/JoinModal";
-import NotificationsModal from "./components/NotificationsModal/NotificationsModal";
 import MyHeader from "./components/MyHeader/MyHeader";
+import MyRequests from "./screens/MyRequests/MyRequests";
+import RequestsOfMyRides from "./screens/RequestsOfMyRides/RequestsOfMyRides";
 
 const Tab = createBottomTabNavigator();
 const RideStackNav = createStackNavigator();
@@ -47,6 +41,7 @@ const RideStack = (props) => {
             }}/>
             <RideStackNav.Screen name="Ride" component={Ride} options={{
                 headerTitle: '',
+
             }}/>
         </RideStackNav.Navigator>
     )
@@ -65,6 +60,12 @@ const AuthStack = (props) => {
                 <>
                     <AuthStackNav.Screen name="Profile" component={MyProfile}/>
                     <AuthStackNav.Screen name="Settings" component={Settings} />
+                    <AuthStackNav.Screen name="MyRequests" component={MyRequests}
+                        options={{headerTitle: 'My Requests'}}
+                    />
+                    <AuthStackNav.Screen name="RequestsOfMyRides" component={RequestsOfMyRides}
+                                         options={{headerTitle: 'Requests of my rides'}}
+                    />
                     <AuthStackNav.Screen name="Cars" component={Cars} />
                     <AuthStackNav.Screen name="AddCar" component={AddCar} options={{
                         headerTitle: 'Add Car'
@@ -164,7 +165,7 @@ class MainNavigation extends  Component{
                                 initialParams={{isAuthenticated: this.props.isAuthenticated}}
                                 options={this.state.unreadNotificationsCount ?
                                     { tabBarBadge: this.state.unreadNotificationsCount }
-                                : { tabBarBadge: this.state.unreadNotificationsCount }
+                                : { tabBarBadge: null }
                                 }
                     />
                 </Tab.Navigator>
