@@ -28,7 +28,6 @@ export const fetchRidesSuccess =(rides) => {
 
 
 // async
-
 export const fetchRides = (query) => {
     return dispatch => {
         dispatch(fetchRidesStart());

@@ -13,7 +13,9 @@ class NotificationsModal extends Component {
 
 
     componentDidMount() {
-        this.getNotData(this.props.notifications);
+        if(this.props.notifications){
+            this.getNotData(this.props.notifications);
+        }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -25,7 +27,7 @@ class NotificationsModal extends Component {
     }
 
     getNotData = (notifications) => {
-
+        // console.log(notifications);
         if (notifications.length === 0) {
             return [];
         }
@@ -36,28 +38,29 @@ class NotificationsModal extends Component {
             if(newItem.verb==='accepted'){
                 newItem.title = <Text>You have been accepted to </Text>;
                 newItem.subtitle =
-                    <Text>{newItem.target.origin} to {newItem.target.destination}</Text>;
+                    newItem.target ? <Text>{newItem.target.origin} to {newItem.target.destination}</Text> : <Text>Ride Deleted</Text>;
                 newItem.avatar= <Icon style={{fontSize: 32, textAlign: "center", color: '#52c41a'}} type={"AntDesign"} name="checkcircle"/>;
             }else if(newItem.verb==='request'){
                 newItem.title = <Text>{newItem.actor.username}</Text>;
                 newItem.subtitle =
-                    <Text>requested to join in {newItem.target.origin} to {newItem.target.destination}</Text>;
+                    newItem.target ? <Text>requested to join in {newItem.target.origin} to {newItem.target.destination}</Text> : <Text>requested to join in "Ride Deleted"</Text>;
+
                 newItem.avatar= <Icon style={{fontSize: 32, textAlign: "center", color: 'orange'}} type={"AntDesign"} name="infocirlce"/>;
             }
             else if(newItem.verb==='declineRequest'){
                 newItem.title = <Text>You have been denied to join</Text>;
-                newItem.subtitle =<Text>{newItem.target.origin} to {newItem.target.destination}</Text>;
+                newItem.subtitle =newItem.target ? <Text>{newItem.target.origin} to {newItem.target.destination}</Text> : <Text>"Ride Deleted"</Text>;
                 newItem.avatar= <Icon style={{fontSize: 32, textAlign: "center", color: 'red'}} type={"AntDesign"} name="closecircle"/>;
             }
             else if(newItem.verb==='cancelRequest'){
                 newItem.title = <Text>{newItem.actor.username}</Text>;
                 newItem.subtitle =
-                    <Text>canceled his/her request in {newItem.target.origin} to {newItem.target.destination}</Text>;
+                    newItem.target ? <Text>canceled his/her request in {newItem.target.origin} to {newItem.target.destination}</Text> : <Text>canceled his/her request in "Ride Deleted"</Text>;
                 newItem.avatar= <Icon style={{fontSize: 32, textAlign: "center", color: 'red'}} type={"AntDesign"} name="closecircle"/>;
             }else{
                 newItem.title = <Text>{newItem.actor.username}</Text>;
                 newItem.subtitle =
-                    <Text> canceled his/her request in {newItem.target.origin} to {newItem.target.destination}</Text>;
+                    newItem.target ? <Text>canceled his/her request in {newItem.target.origin} to {newItem.target.destination}</Text> : <Text>canceled his/her request in "Ride Deleted"</Text>;
                 newItem.avatar= <Icon style={{fontSize: 32, textAlign: "center", color: 'red'}} type={"AntDesign"} name="closecircle"/>;
             }
 
@@ -136,8 +139,6 @@ class NotificationsModal extends Component {
             </Modal>
         )
     }
-
-
 }
 
 export default NotificationsModal;

@@ -23,6 +23,8 @@ import AddCar from "./components/AddCar/AddCar";
 import MyHeader from "./components/MyHeader/MyHeader";
 import MyRequests from "./screens/MyRequests/MyRequests";
 import RequestsOfMyRides from "./screens/RequestsOfMyRides/RequestsOfMyRides";
+import MyRides from "./screens/MyRides/MyRides";
+import AddRide from "./screens/AddRide/AddRide";
 
 const Tab = createBottomTabNavigator();
 const RideStackNav = createStackNavigator();
@@ -60,6 +62,12 @@ const AuthStack = (props) => {
                 <>
                     <AuthStackNav.Screen name="Profile" component={MyProfile}/>
                     <AuthStackNav.Screen name="Settings" component={Settings} />
+                    <AuthStackNav.Screen name="MyRides" component={MyRides}
+                                         options={{headerTitle: 'My Rides'}}
+                    />
+                    <AuthStackNav.Screen name="AddRide" component={AddRide}
+                                         options={{headerTitle: 'Add a ride'}}
+                    />
                     <AuthStackNav.Screen name="MyRequests" component={MyRequests}
                         options={{headerTitle: 'My Requests'}}
                     />

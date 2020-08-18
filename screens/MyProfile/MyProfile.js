@@ -133,9 +133,17 @@ class MyProfile extends Component {
                                     <Text style={{fontWeight: 'bold'}}>My Rides</Text>
                                 </Left>
 
-                                <Right>
+
+
+                                <Right style={{flexDirection: "row", justifyContent: "space-between"}}>
+                                    <Button primary icon
+                                            onPress={()=>this.props.navigation.navigate('AddRide')}
+                                    >
+                                        <Icon name="ios-add-circle" />
+                                    </Button>
+
                                     <Button info icon
-                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                            onPress={()=>this.props.navigation.navigate('MyRides')}
                                     >
                                         <Icon name="ios-arrow-forward" />
                                     </Button>
