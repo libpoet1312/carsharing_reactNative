@@ -27,8 +27,17 @@ class AddCar extends Component{
         if (value) { // if validation fails, value will be null
             console.log(value); // value here is an instance of Person
             // this.handleAdd(value, this.props.navigation);
-            this.props.route.params.addCar(value);
+            if(this.props.fromAddRide){
+                this.props.handleAdd(value);
+            }else{
+                this.props.route.params.addCar(value);
+            }
+
         }
+    };
+
+    onCancel = () => {
+        this.props.onRequestClose();
     };
 
     render() {
@@ -40,6 +49,9 @@ class AddCar extends Component{
                         type={Car}
                         options={options}
                     />
+                    <TouchableHighlight style={styles.buttonCancel} onPress={this.onCancel} underlayColor='#99d9f4'>
+                        <Text style={styles.buttonText}>Cancel</Text>
+                    </TouchableHighlight>
                     <TouchableHighlight style={styles.button} onPress={this.onPress} underlayColor='#99d9f4'>
                         <Text style={styles.buttonText}>Add Car</Text>
                     </TouchableHighlight>
@@ -59,6 +71,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'white',
         alignSelf: 'center'
+    },
+    buttonCancel: {
+        height: 36,
+        backgroundColor: 'gray',
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 8,
+        marginBottom: 10,
+        alignSelf: 'stretch',
+        justifyContent: 'center'
     },
     button: {
         height: 36,

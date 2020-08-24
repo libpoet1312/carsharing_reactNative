@@ -3,7 +3,7 @@ import {View, Text, Modal, StyleSheet, TextInput, TouchableOpacity} from "react-
 
 import {Container, Icon,Header, Button} from "native-base";
 
-import NumericInput from 'react-native-numeric-input'
+import NumericInput from 'rn-numeric-input';
 
 const JoinModal = (props) => {
     const [noOfSeats, setSeats] = useState(1);

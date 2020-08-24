@@ -210,9 +210,8 @@ class Ride extends Component {
         return (
             <View style={styles.container}>
                 <Card style={{width: Dimensions.get('window').width,}}>
-                    <Header noShadow style={{backgroundColor: 'white'}}>
-                        <Left/>
-                        <Body>
+                    <Header noShadow style={{backgroundColor: 'white', }}>
+                        <Body style={{alignItems:'center'}}>
                             <Title style={{color: 'black'}}>{ride.origin} to {ride.destination}</Title>
                         </Body>
                     </Header>

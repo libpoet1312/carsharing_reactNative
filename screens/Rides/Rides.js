@@ -104,12 +104,7 @@ class Rides extends Component {
                     }
 
                 </View>
-
-
-
-
             </View>
-
         )
     }
 }
