@@ -320,13 +320,24 @@ class AddRide extends Component {
     };
 
     onSubmit = () => {
-        const date = this.state.datetime;
-        console.log('datetime: ', date);
-        console.log('date: ', date.toString().split('T')[0]);
-        const time = this.state.time;
-        console.log(date.toString().split('T')[1].slice(0,-1).split('.')[0]);
+        let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+        let localISOTime = (new Date(this.state.datetime - tzoffset)).toISOString().slice(0, -1);
+        console.log('localISOTime: ', localISOTime);
 
+        const date = localISOTime.toString().split('T')[0];
+        console.log('date: ', date);
 
+        const time = localISOTime.toString().split('T')[1].slice(0,-1).split('.')[0];
+        console.log('time: ', time);
+
+        const car = {
+            plate: this.state.car.plate,
+            model: this.state.car.model,
+            color: this.state.car.color,
+            brand: this.state.car.brand,
+            year: this.state.car.year,
+            id: this.state.car.key
+        };
 
         const ride = {
             origin: this.state.origin,
@@ -334,7 +345,7 @@ class AddRide extends Component {
             date: date,
             time: time ,
             vacant_seats: this.state.vacant_seats,
-            car: this.state.car
+            car: car
         };
 
         let config = {
@@ -344,15 +355,18 @@ class AddRide extends Component {
             }
         };
 
-        // axios.post(API_HTTP + 'api/create/', ride, config)
-        //     .then( response => {
-        //         console.log(response.data);
-        //         message.success('Processing complete!');
-        //         this.props.history.push('/rides/'+response.data.pk);
-        //     }).catch(error=>{
-        //     console.log(error);
-        //     message.error('Error adding event! Try again!')
-        // });
+        axios.post(API_HTTP + 'api/create/', ride, config)
+            .then( response => {
+                console.log(response.data);
+
+                this.props.navigation.navigate("Rides", {
+                    screen: 'Ride',
+                    params: {pk: response.data.pk}
+                })
+
+            }).catch(error=>{
+                console.log(error);
+        });
     };
 
     render() {

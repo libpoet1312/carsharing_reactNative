@@ -1,15 +1,24 @@
-import React, {Component} from 'react';
+import React, {Component, useRef} from 'react';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, ListItem } from 'native-base';
-import {FlatList, ActivityIndicator, StyleSheet, View, SafeAreaView, ScrollView} from 'react-native';
+import {FlatList, ActivityIndicator, StyleSheet, View, SafeAreaView, TouchableOpacity, ScrollView} from 'react-native';
 import { Divider, Badge } from 'react-native-elements';
+import RBSheet from "react-native-raw-bottom-sheet";
+
+
 import axios from 'axios';
 import {API_HTTP} from "../../config";
 import {connect} from 'react-redux';
+import UpdateProfileModal from "../../components/UpdateProfileModal/UpdateProfileModal";
+
+
+
 
 class MyProfile extends Component {
     state = {
         user: null,
         loading: true,
+        isModalVisible: false,
+        modal: 'username'
     };
 
 
@@ -48,7 +57,31 @@ class MyProfile extends Component {
         }
     }
 
+    openModal = (modal) => {
+        console.log('openModal');
+        this.setState({isModalVisible: true, modal: modal})
+    };
+
+    closeModal = (modal) => {
+        this.setState({isModalVisible: false, modal: 'username'})
+    };
+
+    onOpen = e => {
+        console.log(e);
+        this.setState({modal: e})
+    };
+
+    onUpdate = (newValue, to) => {
+        console.log(newValue, to);
+        let user = {};
+        user[to]=newValue;
+        console.log(user);
+    };
+
     render() {
+
+
+
         if(this.props.loading || this.state.loading){
             return <ActivityIndicator size={'large'}/>
         }
@@ -64,16 +97,45 @@ class MyProfile extends Component {
         let date = new Date(Date.parse(this.state.user.date_joined)).toDateString();
 
         return (
-            <>
+            <ScrollView style={this.state.isModalVisible ? {backgroundColor: 'rgba(0, 0, 0, 0.5)'} : ''} >
+                <RBSheet
+                    ref={ref => {
+                        this.RBSheet = ref;
+                    }}
+                    height={150}
+                    openDuration={100}
+                    closeDuration={50}
+                    animationType={'fade'}
+                    customStyles={{
+                        container: {
+                            justifyContent: "center",
+                            // alignItems: "center",
+                            backgroundColor: '#003f5c',
+                        }
+                    }}
+                    closeOnDragDown={true}
+                    onOpen = {e => this.onOpen(e)}
+                    mode = {this.state.modal}
+                >
+                    <UpdateProfileModal updateValue={(value, mode)=> this.onUpdate(value, mode)}
+                                        user={this.state.user}
+                                        mode = {this.state.modal}
+                                        isModalVisible={this.state.isModalVisible}
+                                        closeModal={()=> this.RBSheet.close()}
+                    />
+                </RBSheet>
+
+
                 <Container>
-                    <Content>
+
+                    <Content >
                         <Card>
                             <CardItem>
                                 <Body style={{alignItems: 'center', justifyContent: 'center', }}>
                                     <Thumbnail source={{uri: this.props.user.avatar}} style={styles.thumbnail}/>
                                     <View style={{marginTop: 15, alignItems: 'center', justifyContent: 'center', }}>
-                                        <Text style={styles.username}>{this.state.user.username}</Text>
-                                        <Text style={styles.email}>{this.state.user.email}</Text>
+                                        <TouchableOpacity onPress={() => this.RBSheet.open('username')} ><Text style={styles.username} >{this.state.user.username}</Text></TouchableOpacity>
+                                        <TouchableOpacity onPress={() => this.RBSheet.open('email')} ><Text style={styles.email}>{this.state.user.email}</Text></TouchableOpacity>
                                     </View>
                                 </Body>
                             </CardItem>
@@ -195,7 +257,7 @@ class MyProfile extends Component {
                         </Card>
                     </Content>
                 </Container>
-            </>
+            </ScrollView>
         )
     }
 
