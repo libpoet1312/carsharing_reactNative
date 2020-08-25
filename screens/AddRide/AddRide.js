@@ -442,6 +442,7 @@ class AddRide extends Component {
                             <View style={{alignSelf: 'center', marginTop: 20}}>
                                 <H1 style={{textAlign: "center"}}>Date:</H1>
                                 <DateTimePickerModal
+                                    accessibilityLabel={'DateTimePicker'}
                                     isVisible={this.state.show}
                                     mode="datetime"
                                     onConfirm={this.setDate}
@@ -486,6 +487,7 @@ class AddRide extends Component {
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <DropDownPicker
                                         items={this.state.cars}
+                                        accessibilityLabel={'DropDownPicker'}
                                         // defaultValue={this.state.cars.length>0 ? this.state.cars[0]: car}
                                         containerStyle={{height: 40, width: 250}}
                                         style={{backgroundColor: '#fafafa'}}

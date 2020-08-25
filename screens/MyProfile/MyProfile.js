@@ -34,7 +34,7 @@ class MyProfile extends Component {
 
         axios.get(API_HTTP + 'rest-auth/user/', config)
             .then(res => {
-                // console.log('rest auth', res.data);
+                console.log('rest auth', res.data);
                 this.setState({
                     user: res.data,
                     loading: false
@@ -57,6 +57,14 @@ class MyProfile extends Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps!==this.props){
+            console.log('[componentDidUpdate]');
+            this.fetchUserHandler();
+        }
+    }
+
+
     openModal = (modal) => {
         console.log('openModal');
         this.setState({isModalVisible: true, modal: modal})
@@ -76,6 +84,26 @@ class MyProfile extends Component {
         let user = {};
         user[to]=newValue;
         console.log(user);
+        console.log(this.props.user.token);
+
+        let config = {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": 'JWT ' + this.props.user.token,
+            }
+        };
+
+        axios.patch(API_HTTP+'rest-auth/user/',user, config).then(res => {
+            console.log('updated');
+            console.log(res.data);
+            this.setState({user: res.data});
+            this.RBSheet.close();
+
+        }).catch(error=> {
+            console.log('error');
+            console.log(error);
+            this.RBSheet.close();
+        })
     };
 
     render() {
@@ -146,18 +174,18 @@ class MyProfile extends Component {
 
                                 </Left>
                                 <Body style={{flexDirection: 'column', alignItems: 'center'}}>
-                                    <Text style={styles.title}>Phone:</Text>
-                                    <Text style={styles.info}>{this.state.user.phone}</Text>
+                                    <TouchableOpacity onPress={() => this.RBSheet.open('phone_number')} ><Text style={styles.title}>Phone:</Text></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => this.RBSheet.open('phone_number')} ><Text style={styles.info}>{this.state.user.phone_number}</Text></TouchableOpacity>
                                 </Body>
                                 <Right style={{flexDirection: 'column', alignItems: 'center'}}>
-                                    <Text style={styles.title}>Gender:</Text>
-                                    <Text style={styles.info}>{gender}</Text>
+                                    <TouchableOpacity onPress={() => this.RBSheet.open('gender')} ><Text style={styles.title}>Gender:</Text></TouchableOpacity>
+                                        <TouchableOpacity onPress={() => this.RBSheet.open('gender')} ><Text style={styles.info}>{gender}</Text></TouchableOpacity>
                                 </Right>
                             </CardItem>
                             <CardItem style={{justifyContent: 'center',}}>
                                 <Left style={{flexDirection: 'column', alignItems: 'center'}}>
-                                    <Text style={styles.title}>Country:</Text>
-                                    <Text style={styles.info}>{this.state.user.country}</Text>
+                                    <TouchableOpacity onPress={() => this.RBSheet.open('country')} ><Text style={styles.title}>Country:</Text></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => this.RBSheet.open('country')} ><Text style={styles.info}>{this.state.user.country}</Text></TouchableOpacity>
                                 </Left>
 
                                 <Right style={{flexDirection: 'column', alignItems: 'center'}}>
