@@ -52,7 +52,7 @@ const logoutSuccess = (state) => {
     })
 };
 
-const facebookAuthStart = (state, action) => {
+const facebookAuthStart = (state) => {
     return updateObject( state, {
         error: null,
         loading: true
@@ -246,6 +246,20 @@ const setAllNotificationsAsRead = (state, action) => {
     })
 };
 
+const updateProfile = (state, action) => {
+
+    const user = {
+        pk: action.user.pk,
+        username: action.user.username,
+        avatar: action.user.avatar,
+        token: state.user.token
+    };
+
+    return updateObject(state, {
+        user: user
+    })
+};
+
 // ONE REDUCER
 const authReducer = (state= initialState, action) => {
     switch (action.type) {
@@ -273,6 +287,8 @@ const authReducer = (state= initialState, action) => {
         case actionTypes.SET_READ: return setNotificationAsRead(state, action);
         case actionTypes.SET_ALL_READ: return setAllNotificationsAsRead(state, action);
         case actionTypes.RECEIVE_NOTIFICATION: return receiveNotification(state, action);
+
+        case actionTypes.UPDATE_PROFILE_SUCCESS: return updateProfile(state, action);
 
         default:
             return state;

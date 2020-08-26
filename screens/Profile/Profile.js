@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
-import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right } from 'native-base';
+import { Container, Content, Card, CardItem, Thumbnail, Text, Left, Body, Right } from 'native-base';
 import { Image, ActivityIndicator, StyleSheet,View } from 'react-native';
 
 import axios from 'axios';
 import {API_HTTP} from "../../config";
-import {connect} from 'react-redux';
 
 class Profile extends Component {
     // alert('profile');
@@ -15,15 +14,16 @@ class Profile extends Component {
 
     fetchUserHandler = () => {
         // console.log(this.props.user.token);
-
+        let pk = this.props.route.params.pk;
+        console.log('pk:', pk);
         let config = {
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": 'JWT ' + this.props.user.token,
+                "Authorization": 'JWT ' + this.props.route.params.token,
             }
         };
 
-        axios.get(API_HTTP + 'rest-auth/user/', config)
+        axios.get(API_HTTP + 'user/'+pk+'/', config)
             .then(res => {
                 // console.log('rest auth', res.data);
                 this.setState({
@@ -40,13 +40,11 @@ class Profile extends Component {
     componentDidMount() {
         console.log('[componentDidMount]');
         // fetch the requested user only if current user is authenticated!
-        if(this.props.user){
-            this.fetchUserHandler();
-        }
+        this.fetchUserHandler();
     }
 
     render() {
-        if(this.props.loading || this.state.loading){
+        if(this.state.loading){
             return <ActivityIndicator size={'large'}/>
         }
 
@@ -66,7 +64,7 @@ class Profile extends Component {
                     <Card >
                         <CardItem>
                             <Body style={{alignItems: 'center', justifyContent: 'center', }}>
-                                <Thumbnail source={{uri: this.props.user.avatar}} style={styles.thumbnail}/>
+                                <Thumbnail source={{uri: this.state.user.avatar}} style={styles.thumbnail}/>
                                 <View style={{marginTop: 15, alignItems: 'center', justifyContent: 'center', }}>
                                     <Text style={styles.username}>{this.state.user.username}</Text>
                                     <Text style={styles.email}>{this.state.user.email}</Text>

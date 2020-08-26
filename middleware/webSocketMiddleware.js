@@ -36,7 +36,7 @@ const webSocketsMiddleware = (function () {
      */
     const onMessage = (ws, store) => event => {
         const payload = JSON.parse(event.data);
-        console.log(payload);
+        // console.log(payload);
         switch (payload.type) {
             case actionTypes.WS_MESSAGE:
                 store.dispatch(webSocketActions.webSocketMessage(event.host, payload));
@@ -72,7 +72,7 @@ const webSocketsMiddleware = (function () {
      */
 
     return store => next => action => {
-        console.log(action.type);
+        // console.log('type: ', action.type);
         switch (action.type) {
             case actionTypes.AUTH_SUCCESS:
                 if (socket !== null) {
@@ -91,6 +91,7 @@ const webSocketsMiddleware = (function () {
                     // console.log(user);
                     // Attempt to connect to the remote host...
                     socket = new WebSocket(API_WS +`?token=${user.token}`);
+                    // console.log(socket);
 
                     // Set up WebSocket handlers
                     socket.onmessage = onMessage(socket, store);

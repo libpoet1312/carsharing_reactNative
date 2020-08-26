@@ -8,7 +8,6 @@ import {AppLoading} from "expo";
 
 import SearchBar from "../../components/SearchBar/SearchBar";
 import RideItem from "../../components/RideItem/RideItem";
-import FilterButton from "../../components/FilterButton/FilterButton";
 import {Icon} from "native-base";
 
 
@@ -35,27 +34,33 @@ class Rides extends Component {
         this.setState({ loading: true }, () => {  this.props.fetchRides(query.toString()) });
     }
 
+    onEnd = ({distanceFromEnd}) => {
+        console.log(distanceFromEnd);
+
+        if (distanceFromEnd < 0) return;
+        console.log('end');
+        if(this.props.rides.length<this.props.pager.totalItems){
+            console.log('totalItems:', this.props.rides.length);
+            query.append('page', this.props.pager.currentPage + 1);
+            this.props.fetchMoreRides(query.toString());
+        }
+    };
+
 
 
     componentDidMount() {
+        query.append('page', '1');
         this.props.fetchRides(query.toString());
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(this.state!==prevState){
             console.log('here');
-            this.props.fetchRides(query.toString());
+            this.props.fetchRides('');
         }
     }
 
-    setPage = (page) => {
-        if(page===1){
-            query.delete('page');
-        }else{
-            query.append('page', page);
-        }
-        this.props.fetchRides(query.toString());
-    };
+
 
 
 
@@ -76,34 +81,21 @@ class Rides extends Component {
                 <FlatList
                     data={this.props.rides}
                     renderItem={({ item }) => RideItem({item}, this.props.navigation)} //passing navigation props also!
-                    keyExtractor={item => item.origin}
+                    keyExtractor={item => item.pk.toString()}
                     ListHeaderComponent={this.renderHeader}
                     onRefresh={() => this.onRefresh()}
                     refreshing={this.props.loading}
+                    onEndReached={this.onEnd}
+                    onEndReachedThreshold={0.1}
                 />
+                <TouchableOpacity
+                    style={styles.filterBtn}
+                >
+                    <Icon name="filter" type='AntDesign' size={30} />
+                </TouchableOpacity>
 
-                <View style={styles.buttons}>
-                    {this.props.pager.prevPageUrl ?
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => this.setPage(this.props.pager.currentPage - 1)}
 
-                        >
-                            <Icon name="caretleft" type='AntDesign' size={30} />
-                        </TouchableOpacity>: null
-                    }
 
-                    <FilterButton/>
-                    { this.props.pager.nextPageUrl ?
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => this.setPage(this.props.pager.currentPage + 1)}
-                        >
-                            <Icon name="caretright" type='AntDesign' size={30} />
-                        </TouchableOpacity>  : null
-                    }
-
-                </View>
             </View>
         )
     }
@@ -129,24 +121,19 @@ const styles = StyleSheet.create({
         fontWeight: 'normal',
         color: '#848484'
     },
-    button: {
-        borderWidth: 1,
+    filterBtn: {
+        borderWidth:1,
         borderColor:'rgba(0,0,0,0.2)',
-        borderRadius:100,
-        width:50,
-        height:50,
-        justifyContent:'center',
         alignItems:'center',
-    },
-    buttons: {
-        flex: 0,
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        padding: 10,
-        borderColor: 'rgba(0,0,0.2,0.1)',
+        justifyContent:'center',
+        width:60,
+        position: 'absolute',
         bottom: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        // right: 10,
+        height:60,
+        backgroundColor:'#fff',
+        borderRadius:100,
+        alignSelf: 'center'
     }
 });
 
@@ -162,7 +149,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        fetchRides: (query) => dispatch(ridesActions.fetchRides(query))
+        fetchRides: (query) => dispatch(ridesActions.fetchRides(query)),
+        fetchMoreRides: (query) => dispatch(ridesActions.fetchMoreRides(query)),
     }
 };
 

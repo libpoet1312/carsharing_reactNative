@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 
 import {ActivityIndicator, FlatList, TouchableOpacity} from "react-native";
 import {Body, Button, Icon, Left, Right, Text, ListItem, H3} from "native-base";
-import {Divider, Tooltip} from "react-native-elements";
+import {Divider} from "react-native-elements";
 
 import * as requestsActions from "../../store/actions/requestActions";
 
@@ -52,7 +52,13 @@ class RequestsOfMyRides extends Component{
                     </TouchableOpacity>
 
                     <Text note numberOfLines={1}>on {item.ride.date} for {item.seats} seat(s)</Text>
-                    <Text>from {item.fromuser.username}</Text>
+                    <TouchableOpacity
+                        onPress={()=>this.props.navigation.navigate("Profile", {
+                            pk: item.fromuser.pk,
+                            token: this.props.token
+                        })}
+                    ><Text>from {item.fromuser.username}</Text></TouchableOpacity>
+
                 </Body>
                 <Right style={{alignItems: 'center'}}>
                     {item.accepted ?

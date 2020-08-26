@@ -14,7 +14,6 @@ let Car = t.struct({
     color: t.String,               // a required number
     brand: t.String,
     year: t.Number,
-
 });
 
 let options = {};

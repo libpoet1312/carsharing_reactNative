@@ -1,9 +1,8 @@
 import React, {Component} from "react";
-import {Text, TouchableOpacity, View, ActivityIndicator} from 'react-native';
+import {Text, TouchableOpacity, View} from 'react-native';
 import {connect} from 'react-redux';
 
-import {Tooltip} from "react-native-elements";
-import { Container, Header, Left, Body, Right, Button, Icon, Title } from 'native-base';
+import { Button, Icon, } from 'native-base';
 import NotificationsModal from "../NotificationsModal/NotificationsModal";
 import IconBadge from "react-native-icon-badge";
 import * as authActions from "../../store/actions/authActions";
@@ -47,7 +46,7 @@ class MyHeader extends Component {
     };
 
     logoutHandler = () => {
-        console.log(this.props);
+        // console.log(this.props);
         this.props.navigation.navigate('Home');
         this.props.logout();
     };

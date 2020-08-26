@@ -94,9 +94,22 @@ export const facebookAuthSuccess = (user) => {
     }
 };
 
+export const updateProfileSuccess = user => {
+    return {
+        type: actionTypes.UPDATE_PROFILE_SUCCESS,
+        user
+    }
+};
+
 //////////////////////////
 // ASYNC ACTIONS BELOW //
 /////////////////////////
+
+export const updateProfile = (user) => {
+    return dispatch => {
+        dispatch(updateProfileSuccess(user));
+    }
+};
 
 export const authLogin = (username, password) => {
     return dispatch => {

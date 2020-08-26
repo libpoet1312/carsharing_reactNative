@@ -1,8 +1,12 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, Text, View, StyleSheet, TextInput, TouchableOpacity, Dimensions, Image} from "react-native";
+import {Divider} from "react-native-elements";
+import {H1, Button} from 'native-base';
 import logo from '../../assets/images/sustain.jpeg'
 import {connect} from 'react-redux';
+import * as Facebook from 'expo-facebook';
 import * as actions from '../../store/actions/authActions';
+import {FACEBOOK_APP_ID} from "../../config";
 
 const { width,  } = Dimensions.get('screen');
 
@@ -15,6 +19,26 @@ class Login extends Component{
     state={
         username: null,
         password: null
+    };
+
+    facebookLogIn = async () => {
+        try {
+            await Facebook.initializeAsync(FACEBOOK_APP_ID);
+
+            const {
+                type,
+                token,
+            } = await Facebook.logInWithReadPermissionsAsync(FACEBOOK_APP_ID, {
+                permissions: ['public_profile'],
+            });
+            if (type === 'success') {
+                this.props.facebookAuth(token);
+            } else {
+                // type === 'cancel'
+            }
+        } catch ({ message }) {
+            alert(`Facebook Login Error: ${message}`);
+        }
     };
 
     handleSubmit = () => {
@@ -38,7 +62,7 @@ class Login extends Component{
                 <View style={styles.inputView} >
                     <TextInput
                         style={styles.inputText}
-                        placeholder="Email..."
+                        placeholder="username..."
                         placeholderTextColor="#003f5c"
                         onChangeText={(username) => {
                             this.setState({username})
@@ -58,6 +82,7 @@ class Login extends Component{
                         value={this.state.password}
                     />
                 </View>
+
                 <TouchableOpacity>
                     <Text style={styles.forgot}>Forgot Password?</Text>
                 </TouchableOpacity>
@@ -71,6 +96,12 @@ class Login extends Component{
                 >
                     <Text style={styles.loginText}>Signup</Text>
                 </TouchableOpacity>
+
+                <Divider style={{marginTop: 20 , backgroundColor: '#fff', height: 3, width: width-20}}/>
+                <Button style={styles.fbBtn} full onPress={this.facebookLogIn}>
+                    <H1 style={{ color: "#fff", textAlign: 'center' }}>FACEBOOK LOGIN</H1>
+                </Button>
+
             </View>
 
         )
@@ -89,7 +120,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onAuth: (username, password) => dispatch(actions.authLogin(username, password))
+        onAuth: (username, password) => dispatch(actions.authLogin(username, password)),
+        facebookAuth: (token) => dispatch(actions.facebookAuth(token))
     }
 };
 
@@ -168,4 +200,14 @@ const styles = StyleSheet.create({
         marginBottom: 100
 
     },
+    fbBtn: {
+        height:50,
+        marginTop: 20,
+        backgroundColor: '#4267b2',
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        alignSelf: 'center',
+        alignContent: 'center'
+    }
 });

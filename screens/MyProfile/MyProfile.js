@@ -1,13 +1,19 @@
-import React, {Component, useRef} from 'react';
-import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, ListItem } from 'native-base';
-import {FlatList, ActivityIndicator, StyleSheet, View, SafeAreaView, TouchableOpacity, ScrollView} from 'react-native';
+import React, {Component,} from 'react';
+import {Container, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, Toast} from 'native-base';
+import {ActivityIndicator, StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import { Divider, Badge } from 'react-native-elements';
 import RBSheet from "react-native-raw-bottom-sheet";
+
+import * as ImagePicker from 'expo-image-picker';
+import Constants from 'expo-constants';
+import * as Permissions from 'expo-permissions';
+
 
 
 import axios from 'axios';
 import {API_HTTP} from "../../config";
 import {connect} from 'react-redux';
+import * as authActions from '../../store/actions/authActions';
 import UpdateProfileModal from "../../components/UpdateProfileModal/UpdateProfileModal";
 
 
@@ -18,7 +24,8 @@ class MyProfile extends Component {
         user: null,
         loading: true,
         isModalVisible: false,
-        modal: 'username'
+        modal: 'username',
+        newAvatar: null,
     };
 
 
@@ -46,12 +53,66 @@ class MyProfile extends Component {
         });
     };
 
+    getPermissionAsync = async () => {
+        if (Constants.platform.ios) {
+            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            if (status !== 'granted') {
+                alert('Sorry, we need camera roll permissions to make this work!');
+            }
+        }
+    };
+
+    _pickImage = async () => {
+        try {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+            if (!result.cancelled) {
+                // this.setState({ newAvatar: result.uri });
+                console.log(result);
+                let localUri = result.uri;
+                let filename = localUri.split('/').pop();
+
+                // Infer the type of the image
+                let match = /\.(\w+)$/.exec(filename);
+                let type = match ? `image/${match[1]}` : `image`;
+                console.log(localUri, filename, type);
+
+                const data = new FormData();
+                data.append('avatar', {type:type, uri:localUri, name:filename});
+                const config= {
+                    "headers": {
+                        "Content-Type": 'multipart/form-data; boundary=----WebKitFormBoundaryqTqJIxvkWFYqvP5s',
+                        "Authorization": 'JWT ' + this.props.user.token,
+                    }
+                };
+
+                axios.patch(API_HTTP+'rest-auth/user/', data, config).then(res=>{
+                    // console.log(res.data);
+                    this.props.updateProfile(res.data);
+                    this.setState({ newAvatar: result.uri });
+                }).catch(error=> {
+                    console.log(error);
+                });
+
+            }
+
+            // console.log(result);
+        } catch (E) {
+            console.log(E);
+        }
+    };
+
 
 
     componentDidMount() {
-        console.log('[componentDidMount]');
+
         // fetch the requested user only if current user is authenticated!
         if(this.props.user){
+            console.log('[componentDidMount]');
             this.fetchUserHandler();
             // console.log(this.props.notifications);
         }
@@ -70,9 +131,6 @@ class MyProfile extends Component {
         this.setState({isModalVisible: true, modal: modal})
     };
 
-    closeModal = (modal) => {
-        this.setState({isModalVisible: false, modal: 'username'})
-    };
 
     onOpen = e => {
         console.log(e);
@@ -98,6 +156,7 @@ class MyProfile extends Component {
             console.log(res.data);
             this.setState({user: res.data});
             this.RBSheet.close();
+            Toast.show({text: `${to} Updated Successfully`, type: "success", position: "top"})
 
         }).catch(error=> {
             console.log('error');
@@ -114,7 +173,7 @@ class MyProfile extends Component {
             return <ActivityIndicator size={'large'}/>
         }
 
-        let gender = null;
+        let gender;
         switch (this.state.user.gender) {
             case 'M': gender=<Text>Male</Text>;break;
             case 'F': gender=<Text>Female</Text>;break;
@@ -160,7 +219,7 @@ class MyProfile extends Component {
                         <Card>
                             <CardItem>
                                 <Body style={{alignItems: 'center', justifyContent: 'center', }}>
-                                    <Thumbnail source={{uri: this.props.user.avatar}} style={styles.thumbnail}/>
+                                    <TouchableOpacity onPress={this._pickImage} ><Thumbnail source={{uri: this.state.user.avatar}} style={styles.thumbnail}/></TouchableOpacity>
                                     <View style={{marginTop: 15, alignItems: 'center', justifyContent: 'center', }}>
                                         <TouchableOpacity onPress={() => this.RBSheet.open('username')} ><Text style={styles.username} >{this.state.user.username}</Text></TouchableOpacity>
                                         <TouchableOpacity onPress={() => this.RBSheet.open('email')} ><Text style={styles.email}>{this.state.user.email}</Text></TouchableOpacity>
@@ -205,7 +264,7 @@ class MyProfile extends Component {
 
                                 <Right>
                                     <Button warning iconRight
-                                            onPress={()=>this.props.navigation.navigate('Settings')}
+                                            onPress={()=>this.props.navigation.navigate('Settings',{token: this.props.user.token})}
                                     >
                                         <Text>Settings</Text>
                                         <Icon name="settings" />
@@ -331,4 +390,10 @@ const mapStateToProps = state => {
     }
 };
 
-export default connect(mapStateToProps)(MyProfile);
+const mapDispatchToProps = dispatch => {
+    return {
+        updateProfile : (user) => dispatch(authActions.updateProfile(user))
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(MyProfile);

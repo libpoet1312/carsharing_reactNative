@@ -81,7 +81,7 @@ const getPager = (totalItems, currentPage, nextPageUrl, prevPageUrl) =>{
     currentPage = currentPage || 1;
 
     // default page size is 2
-    let pageSize = 2;
+    let pageSize = 7;
 
     // calculate total pages
     let totalPages = Math.ceil(totalItems / pageSize);
@@ -128,6 +128,52 @@ const getPager = (totalItems, currentPage, nextPageUrl, prevPageUrl) =>{
 };
 
 
+const fetchMoreRidesSuccess = (state, action) => {
+    let next = action.rides.next;
+    let nextUrl = null;
+    let prev = action.rides.previous;
+    let prevUrl = null;
+
+    let currentPage = 1;
+
+    // find current page
+    if(next){
+        nextUrl = new URL(next);
+        let params = nextUrl.searchParams;
+        currentPage = params.get('page') - 1;
+
+        // console.log('[next]', currentPage);
+    }else if (prev && !next){
+        // last page / pages > 2
+        prevUrl = new URL(prev);
+        let params = prevUrl.searchParams;
+        if(params.has('page')){
+            currentPage = params.get('page') + 1;
+        }else{
+            currentPage = 2;
+        }
+
+        // console.log('[prev]', currentPage);
+
+
+    }
+
+
+    console.log("[currentPage]", currentPage);
+    let pager = getPager(action.rides.count, currentPage, nextUrl, prevUrl);
+    console.log(action.rides.results);
+    let newRides = state.rides.concat(action.rides.results);
+    console.log(newRides);
+
+    return {
+        ...state,
+        error: null,
+        loading: false,
+        rides: newRides,
+        pager: updateObject(state.pager, pager)
+    }
+};
+
 // the reducer:
 
 const ridesReducer = (state= initialState, action) => {
@@ -135,6 +181,7 @@ const ridesReducer = (state= initialState, action) => {
         case actionTypes.FETCH_RIDES_START: return fetchRidesStart(state);
         case actionTypes.FETCH_RIDES_FAIL: return fetchRidesFail(state, action);
         case actionTypes.FETCH_RIDES_SUCCESS: return fetchRidesSuccess(state, action);
+        case actionTypes.FETCH_MORE_RIDES_SUCCESS: return fetchMoreRidesSuccess(state, action);
         default:
             return state;
     }

@@ -2,8 +2,6 @@ import 'react-native-gesture-handler';
 import 'react-native-url-polyfill/auto';
 import React, {Component} from 'react';
 
-
-
 import { Provider, } from 'react-redux';
 import { StatusBar} from 'react-native';
 import axios from "axios";
@@ -24,43 +22,40 @@ class App extends Component{
         error: null
     };
 
-    async componentDidMount() {
+    render() {
+        if (!this.state.isReady) {
+            return <AppLoading
+                startAsync={this._cacheResourcesAsync}
+                onFinish={()=>this.setState({isReady: true})}
+                onError={console.warn}
+            />;
+        }
+
+        return(
+
+            <Provider store={store}>
+                <StatusBar hidden/>
+                <MainNavigation/>
+            </Provider>
+        )
+    }
+
+    async _cacheResourcesAsync() {
+
         await Font.loadAsync({
             Roboto: require('native-base/Fonts/Roboto.ttf'),
             Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
             ...Ionicons.font,
         });
-        this.setState({ isReady: true });
 
         await axios.get('https://snf-876572.vm.okeanos.grnet.gr/')
-            .then( res => {
-                console.log(res.status);
-                this.setState({
-                    online: true,
-                    loading: false
-                });
+            .then( () => {
+                // console.log(res.status);
             }).catch( error => {
-            console.log(error);
-            this.setState({
-                online: false,
-                error: error,
-                loading: false
+                console.log(error);
             });
-        });
-    }
 
-    render() {
-        if (!this.state.isReady && this.state.loading) {
-            return <AppLoading />;
-        }
-
-        return(
-            <Provider store={store}>
-                <StatusBar hidden/>
-                <MainNavigation/>
-            </Provider>
-
-      )
+        // return new Promise;
     }
 }
 

@@ -24,7 +24,12 @@ export const fetchRidesSuccess =(rides) => {
     }
 };
 
-
+export const fetchMoreRidesSuccess =(rides) => {
+    return {
+        type: actionTypes.FETCH_MORE_RIDES_SUCCESS,
+        rides: rides
+    }
+};
 
 
 // async
@@ -40,6 +45,25 @@ export const fetchRides = (query) => {
             .then( (response) => {
                 // console.log(response.data);
                 dispatch(fetchRidesSuccess(response.data));
+            }).catch( error => {
+            console.log(error);
+            dispatch(fetchRidesFail(error));
+        })
+    }
+};
+
+export const fetchMoreRides = query => {
+    return dispatch => {
+        dispatch(fetchRidesStart());
+        if(query!==''){
+            console.log('query', query);
+            query = '?'+query;
+        }
+
+        axios.get(API_HTTP + 'api/'+ query)
+            .then( (response) => {
+                // console.log(response.data);
+                dispatch(fetchMoreRidesSuccess(response.data));
             }).catch( error => {
             console.log(error);
             dispatch(fetchRidesFail(error));

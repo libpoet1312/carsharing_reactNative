@@ -224,7 +224,10 @@ class Ride extends Component {
                         <Text note>Vacant Seats: <Text>{ride.vacant_seats}</Text></Text>
                         {this.props.isAuthenticated ?
                             <Button transparent
-                                    onPress={()=>alert(ride.uploader.username)}
+                                    onPress={()=>this.props.navigation.navigate("MyProfile", {
+                                        screen: 'Profile',
+                                        params: {pk: ride.uploader.pk, token: this.props.token}
+                                    })}
                             >
                                 <Text note>Driver: <Text>{ride.uploader.username}</Text></Text>
                             </Button>
@@ -247,42 +250,42 @@ class Ride extends Component {
                     </Card> : null
                 }
 
-                {/*<Card>*/}
-                {/*    <CardItem>*/}
-                {/*        <MapView*/}
-                {/*            initialRegion={{*/}
-                {/*                latitude: LATITUDE,*/}
-                {/*                longitude: LONGITUDE,*/}
-                {/*                latitudeDelta: LATITUDE_DELTA,*/}
-                {/*                longitudeDelta: LONGITUDE_DELTA,*/}
-                {/*            }}*/}
-                {/*            style={styles.mapStyle}*/}
-                {/*            ref={c => this.mapView = c} // eslint-disable-line react/jsx-no-bind*/}
-                {/*            onPress={this.onMapPress}*/}
-                {/*        >*/}
-                {/*            <MapViewDirections*/}
-                {/*                origin={this.props.ride.origin}*/}
-                {/*                destination={this.props.ride.destination}*/}
-                {/*                waypoints={[this.props.origin, this.props.destination].slice(1,-1)}*/}
-                {/*                mode='DRIVING'*/}
-                {/*                region='GR'*/}
-                {/*                apikey={GOOGLE_MAPS_APIKEY}*/}
-                {/*                language='en'*/}
-                {/*                strokeWidth={4}*/}
-                {/*                strokeColor="black"*/}
-                {/*                onStart={(params) => {*/}
-                {/*                    console.log(`Started routing between "${params.origin}" and "${params.destination}"${(params.waypoints.length ? " using waypoints: " + params.waypoints.join(', ') : "")}`);*/}
-                {/*                }}*/}
-                {/*                onReady={this.onReady}*/}
-                {/*                onError={(errorMessage) => {*/}
-                {/*                    console.log(errorMessage);*/}
-                {/*                }}*/}
-                {/*                resetOnChange={false}*/}
-                {/*            />*/}
-                {/*        </MapView>*/}
-                {/*    </CardItem>*/}
+                <Card>
+                    <CardItem>
+                        <MapView
+                            initialRegion={{
+                                latitude: LATITUDE,
+                                longitude: LONGITUDE,
+                                latitudeDelta: LATITUDE_DELTA,
+                                longitudeDelta: LONGITUDE_DELTA,
+                            }}
+                            style={styles.mapStyle}
+                            ref={c => this.mapView = c} // eslint-disable-line react/jsx-no-bind
+                            onPress={this.onMapPress}
+                        >
+                            <MapViewDirections
+                                origin={this.props.ride.origin}
+                                destination={this.props.ride.destination}
+                                waypoints={[this.props.origin, this.props.destination].slice(1,-1)}
+                                mode='DRIVING'
+                                region='GR'
+                                apikey={GOOGLE_MAPS_APIKEY}
+                                language='en'
+                                strokeWidth={4}
+                                strokeColor="black"
+                                onStart={(params) => {
+                                    console.log(`Started routing between "${params.origin}" and "${params.destination}"${(params.waypoints.length ? " using waypoints: " + params.waypoints.join(', ') : "")}`);
+                                }}
+                                onReady={this.onReady}
+                                onError={(errorMessage) => {
+                                    console.log(errorMessage);
+                                }}
+                                resetOnChange={false}
+                            />
+                        </MapView>
+                    </CardItem>
+                </Card>
 
-                {/*</Card>*/}
                 <JoinModal
                     visible={this.state.isModalVisible}
                     toggleModal={()=>this.toggleModal}
