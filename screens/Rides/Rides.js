@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {View, FlatList, StyleSheet, TouchableOpacity} from "react-native";
+import {View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions} from "react-native";
 
 import {connect} from 'react-redux';
 import * as ridesActions from '../../store/actions/ridesActions';
@@ -10,6 +10,7 @@ import SearchBar from "../../components/SearchBar/SearchBar";
 import RideItem from "../../components/RideItem/RideItem";
 import {Icon} from "native-base";
 
+const height = Dimensions.get('window').height - 100;
 
 let query = new URLSearchParams();
 
@@ -28,23 +29,16 @@ class Rides extends Component {
         time: null,
         passengers: null,
         pager: {},
+        isLoadingMore: false,
     };
 
     onRefresh() {
-        this.setState({ loading: true }, () => {  this.props.fetchRides(query.toString()) });
+        this.setState({ loading: true }, () => {
+            query.delete('page');
+            this.props.fetchRides(query.toString()) });
     }
 
-    onEnd = ({distanceFromEnd}) => {
-        console.log(distanceFromEnd);
 
-        if (distanceFromEnd < 0) return;
-        console.log('end');
-        if(this.props.rides.length<this.props.pager.totalItems){
-            console.log('totalItems:', this.props.rides.length);
-            query.append('page', this.props.pager.currentPage + 1);
-            this.props.fetchMoreRides(query.toString());
-        }
-    };
 
 
 
@@ -54,11 +48,24 @@ class Rides extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.state!==prevState){
-            console.log('here');
-            this.props.fetchRides('');
+        // console.log('componentDidUpdate');
+        if(!this.props.loading && prevProps.loading) {
+            // console.log('asd');
+            this.setState({isLoadingMore: false});
         }
     }
+
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        // console.log('shouldComponentUpdate');
+        // console.log(nextProps.rides.length, this.props.rides.length);
+        return nextProps.rides.length !== this.props.rides.length
+    }
+
+    isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        const paddingToBottom = 20; // how far from the bottom
+        return layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom;
+    };
 
 
 
@@ -67,6 +74,14 @@ class Rides extends Component {
 
     renderHeader = () => {
         return <SearchBar/>;
+    };
+
+    fetchMoreRides = () => {
+        if(this.props.rides.length<this.props.pager.totalItems ){
+            console.log('fetchMoreRides');
+            query.set('page', this.props.pager.currentPage + 1);
+            this.props.fetchMoreRides(query.toString());
+        }
     };
 
 
@@ -85,8 +100,24 @@ class Rides extends Component {
                     ListHeaderComponent={this.renderHeader}
                     onRefresh={() => this.onRefresh()}
                     refreshing={this.props.loading}
-                    onEndReached={this.onEnd}
-                    onEndReachedThreshold={0.1}
+
+                    onScroll={({ nativeEvent }) => {
+                        if (this.isCloseToBottom(nativeEvent)) {
+                            // Dont forget to debounce or throttle this function.
+                            console.log('END REACHED');
+                            this.setState({isLoadingMore: true});
+                            this.fetchMoreRides();
+                        }
+                    }}
+
+                    ListFooterComponent={()=>{
+                        return (
+                            (this.props.loading || this.state.isLoadingMore) &&
+                            <View style={{ flex: 1 }}>
+                                <ActivityIndicator size="large" color={'black'} />
+                            </View>
+                        )
+                    }}
                 />
                 <TouchableOpacity
                     style={styles.filterBtn}
@@ -105,7 +136,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        justifyContent: 'center',
     },
     car: {
         height: 20,

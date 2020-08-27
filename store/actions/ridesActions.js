@@ -37,7 +37,7 @@ export const fetchRides = (query) => {
     return dispatch => {
         dispatch(fetchRidesStart());
         if(query!==''){
-            console.log('edw');
+            // console.log('edw');
             query = '?'+query;
         }
 
@@ -56,7 +56,7 @@ export const fetchMoreRides = query => {
     return dispatch => {
         dispatch(fetchRidesStart());
         if(query!==''){
-            console.log('query', query);
+            // console.log('query', query);
             query = '?'+query;
         }
 

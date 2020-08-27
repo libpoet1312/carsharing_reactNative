@@ -27,6 +27,7 @@ import MyRides from "./screens/MyRides/MyRides";
 import AddRide from "./screens/AddRide/AddRide";
 import {Root} from "native-base";
 import Profile from "./screens/Profile/Profile";
+import EditRide from "./screens/EditRide/EditRide";
 
 const Tab = createBottomTabNavigator();
 const RideStackNav = createStackNavigator();
@@ -70,6 +71,9 @@ const AuthStack = (props) => {
                     />
                     <AuthStackNav.Screen name="AddRide" component={AddRide}
                                          options={{headerTitle: 'Add a ride'}}
+                    />
+                    <AuthStackNav.Screen name="EditRide" component={EditRide}
+                                         options={{headerTitle: 'Edit Ride'}}
                     />
                     <AuthStackNav.Screen name="MyRequests" component={MyRequests}
                         options={{headerTitle: 'My Requests'}}

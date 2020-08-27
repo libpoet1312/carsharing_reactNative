@@ -161,9 +161,9 @@ const fetchMoreRidesSuccess = (state, action) => {
 
     console.log("[currentPage]", currentPage);
     let pager = getPager(action.rides.count, currentPage, nextUrl, prevUrl);
-    console.log(action.rides.results);
+    // console.log(action.rides.results);
     let newRides = state.rides.concat(action.rides.results);
-    console.log(newRides);
+    // console.log(newRides);
 
     return {
         ...state,

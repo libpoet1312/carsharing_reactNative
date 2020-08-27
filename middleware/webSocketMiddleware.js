@@ -72,12 +72,12 @@ const webSocketsMiddleware = (function () {
      */
 
     return store => next => action => {
-        // console.log('type: ', action.type);
+        console.log('type: ', action.type);
         switch (action.type) {
             case actionTypes.AUTH_SUCCESS:
-                if (socket !== null) {
-                    socket.close()
-                }
+                // if (socket !== null) {
+                //     socket.close()
+                // }
 
                 // Pass action along
                 next(action);

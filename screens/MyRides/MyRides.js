@@ -1,43 +1,89 @@
 import React, {Component} from "react";
 import {connect} from 'react-redux';
-import {View, FlatList, Text, TouchableOpacity, TouchableHighlight, StyleSheet, Image} from "react-native";
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    TouchableHighlight,
+    StyleSheet,
+    Image,
+    ActivityIndicator
+} from "react-native";
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
 
 import * as myRidesActions from "../../store/actions/myRidesActions";
 import {Icon, List, ListItem, Right, Left, Body, Button, Container, Content} from "native-base";
 import car from "../../assets/images/carlist.jpeg";
 import SearchBar from "../../components/SearchBar/SearchBar";
-import FilterButton from "../../components/FilterButton/FilterButton";
+
+
+let query = new URLSearchParams();
+
 
 class MyRides extends Component{
+    constructor(props) {
+        super(props);
+    }
+
+    state = {
+        rides: null,
+        loading: true,
+        origin: null,
+        destination: null,
+        date: null,
+        time: null,
+        passengers: null,
+        pager: {},
+        isLoadingMore: false,
+    };
+
     componentDidMount() {
         // console.log(this.props.token);
+        query.set('page', '1');
         this.props.fetchRides('', this.props.token);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.state!==prevState){
-            console.log('here');
+        if(prevProps.rides!==this.props.rides){
             this.props.fetchRides('', this.props.token);
-            // query.toString()
+        }
+
+        if(!this.props.loading && prevProps.loading) {
+            // console.log('asd');
+            this.setState({isLoadingMore: false});
         }
     }
 
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        console.log('shouldComponentUpdate');
+        // console.log(nextProps.rides.length, this.props.rides.length);
+        if(nextProps.rides.length && this.props.rides.length)return nextProps.rides.length !== this.props.rides.length;
+        return true;
+    }
+
+    isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        const paddingToBottom = 20; // how far from the bottom
+        return layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom;
+    };
+
+    fetchMoreRides = () => {
+        if(!this.props.rides) return;
+        if(this.props.rides.length<this.props.pager.totalItems ){
+            console.log('fetchMoreRides');
+            query.set('page', this.props.pager.currentPage + 1);
+            this.props.fetchMoreRides(query.toString());
+        }
+    };
+
+
     onRefresh = () => {
+        query.delete('page');
         this.props.fetchRides('', this.props.token);
     };
 
     renderHeader = () => {
         return <SearchBar/>;
-    };
-
-    setPage = (page) => {
-        if(page===1){
-            query.delete('page');
-        }else{
-            query.append('page', page);
-        }
-        this.props.fetchRides(query.toString());
     };
 
     closeRow = (rowMap, rowKey) => {
@@ -89,7 +135,7 @@ class MyRides extends Component{
             <View style={styles.rowBack}>
                 <TouchableOpacity
                     style={styles.backLeftBtn}
-                    onPress={() => this.closeRow(rowMap, data.item.pk)}
+                    onPress={() => this.props.navigation.navigate('EditRide', {pk:data.item.pk})}
                 >
                     <Text style={styles.backTextWhite}>Edit</Text>
                 </TouchableOpacity>
@@ -130,30 +176,26 @@ class MyRides extends Component{
                     previewRowKey={'0'}
                     previewOpenValue={-40}
                     previewOpenDelay={3000}
+
+                    onScroll={({ nativeEvent }) => {
+                        if (this.isCloseToBottom(nativeEvent)) {
+                            // Dont forget to debounce or throttle this function.
+                            console.log('END REACHED');
+                            this.setState({isLoadingMore: true});
+                            this.fetchMoreRides();
+                        }
+                    }}
+
+                    ListFooterComponent={()=>{
+                        return (
+                            (this.props.loading || this.state.isLoadingMore) &&
+                            <View style={{ flex: 1 }}>
+                                <ActivityIndicator size="large" color={'black'} />
+                            </View>
+                        )
+                    }}
+
                 />
-
-                <View style={styles.buttons}>
-                    {this.props.pager.prevPageUrl ?
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => this.setPage(this.props.pager.currentPage - 1)}
-
-                        >
-                            <Icon name="caretleft" type='AntDesign' size={30} />
-                        </TouchableOpacity>: null
-                    }
-
-                    <FilterButton/>
-                    { this.props.pager.nextPageUrl ?
-                        <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => this.setPage(this.props.pager.currentPage + 1)}
-                        >
-                            <Icon name="caretright" type='AntDesign' size={30} />
-                        </TouchableOpacity>  : null
-                    }
-
-                </View>
             </Container>
 
         );
