@@ -42,8 +42,8 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const GOOGLE_MAPS_APIKEY = GOOGLE_MAPS_KEY;
 
-
 const labels = ["Basic Ride Informantion","Extra","Submit",];
+
 const customStyles = {
     stepIndicatorSize: 25,
     currentStepIndicatorSize:30,
@@ -153,9 +153,9 @@ class EditRide extends Component {
 
         newOrigin: null,
         newDestination: null,
-        newDate: Date.now(),
-        newTime: '12:00:00',
-        newVacant_seats: 1,
+        newDate: null,
+        newTime: null,
+        newVacant_seats: null,
         newCar: null,
         newDatetime: Date.now(),
     };
@@ -183,10 +183,12 @@ class EditRide extends Component {
                     "Authorization": "JWT "+ user.token
                 }
             };
+
+            let cars = [];
             axios.get(API_HTTP + 'cars/car/', config)
                 .then( response => {
                     // console.log(response.data);
-                    const cars = [];
+
                     for (let i = 0; i < response.data.length; i++) {
                         cars.push({
                             label: response.data[i].plate,
@@ -203,8 +205,6 @@ class EditRide extends Component {
                     }
                     this.setState({
                         cars: cars,
-                        loading: false,
-                        car: cars[0],
                         // count: response.data.length,
                         // loading: false,
                         // selectedItem: cars[0] // preload the first to modal
@@ -220,13 +220,25 @@ class EditRide extends Component {
             axios.get(API_HTTP + 'api/'+this.props.route.params.pk+'/edit/', config)
                 .then( (response) => {
                     console.log(response.data);
+                    const car = {
+                        key: response.data.car.id,
+                        label: response.data.car.plate,
+                        plate: response.data.car.plate,
+                        model: response.data.car.model,
+                        color: response.data.car.color,
+                        brand: response.data.car.brand,
+                        year: response.data.car.year,
+                        value: response.data.car.id,
+                        icon: () => <Icon name="ios-car" size={18} color="#900" />
+                    };
+                    console.log(car);
                     this.setState({
                         origin: response.data.origin,
                         destination: response.data.destination,
                         date: response.data.date,
                         time: response.data.time,
                         vacant_seats: response.data.vacant_seats,
-                        car: response.data.car,
+                        car: car,
 
                         loading: false
                     })
@@ -298,9 +310,9 @@ class EditRide extends Component {
         // const time = time2[1].slice(0, -1);
 
         this.setState({
-            date: date.toDateString(),
-            time: date.toTimeString(),
-            datetime: date
+            newDate: date.toDateString(),
+            newTime: date.toTimeString(),
+            newDatetime: date
         })
     };
 
@@ -354,33 +366,33 @@ class EditRide extends Component {
     };
 
     onSubmit = () => {
-        let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-        let localISOTime = (new Date(this.state.datetime - tzoffset)).toISOString().slice(0, -1);
-        console.log('localISOTime: ', localISOTime);
+        const updatedRide = {};
+        if(this.state.newOrigin){updatedRide.origin=this.state.newOrigin}
+        if(this.state.newDestination){updatedRide.destination=this.state.newDestination}
+        if(this.state.newDate){
+            let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            let localISOTime = (new Date(this.state.datetime - tzoffset)).toISOString().slice(0, -1);
+            console.log('localISOTime: ', localISOTime);
 
-        const date = localISOTime.toString().split('T')[0];
-        console.log('date: ', date);
+            const date = localISOTime.toString().split('T')[0];
+            console.log('date: ', date);
 
-        const time = localISOTime.toString().split('T')[1].slice(0,-1).split('.')[0];
-        console.log('time: ', time);
+            const time = localISOTime.toString().split('T')[1].slice(0,-1).split('.')[0];
+            console.log('time: ', time);
+            updatedRide.date=date;
+            updatedRide.time=time;
+        }
+        if(this.state.newCar){updatedRide.car={
+            plate: this.state.newCar.plate,
+            model: this.state.newCar.model,
+            color: this.state.newCar.color,
+            brand: this.state.newCar.brand,
+            year: this.state.newCar.year,
+            id: this.state.newCar.key
+        }}
+        if(this.state.newVacant_seats){updatedRide.vacant_seats=this.state.newVacant_seats}
 
-        const car = {
-            plate: this.state.car.plate,
-            model: this.state.car.model,
-            color: this.state.car.color,
-            brand: this.state.car.brand,
-            year: this.state.car.year,
-            id: this.state.car.key
-        };
-
-        const ride = {
-            origin: this.state.origin,
-            destination: this.state.destination,
-            date: date,
-            time: time ,
-            vacant_seats: this.state.vacant_seats,
-            car: car
-        };
+        console.log('updatedRide:', updatedRide);
 
         let config = {
             headers: {
@@ -389,7 +401,7 @@ class EditRide extends Component {
             }
         };
 
-        axios.post(API_HTTP + 'api/create/', ride, config)
+        axios.patch(API_HTTP + 'api/'+this.props.route.params.pk+'/edit/', updatedRide, config)
             .then( response => {
                 console.log(response.data);
 
@@ -404,7 +416,7 @@ class EditRide extends Component {
     };
 
     render() {
-        if(this.state.loading && this.state.cars.length===0){return <ActivityIndicator size={'large'}/>}
+        if(this.state.loading  ){return <ActivityIndicator size={'large'}/>}
 
         return (
             <Container>
@@ -412,7 +424,6 @@ class EditRide extends Component {
                     animationType="slide"
                     transparent={false}
                     visible={this.state.modalVisible}
-
                 >
                     <AddCar onRequestClose={() => { this.onModalDismiss() }} fromAddRide={true} handleAdd={newCar=>this.handleAdd(newCar)}/>
                 </Modal>
@@ -501,7 +512,7 @@ class EditRide extends Component {
                                 <H3>Seats Available</H3>
                                 <NumericInput
                                     value={this.state.value}
-                                    onChange={value => this.setState({vacant_seats: value})}
+                                    onChange={value => this.setState({newVacant_seats: value})}
                                     onLimitReached={(isMax,msg) => console.log(isMax,msg)}
                                     totalWidth={240}
                                     totalHeight={50}
@@ -520,28 +531,32 @@ class EditRide extends Component {
 
                             <View style={{alignItems: 'center', marginBottom: 150}}>
                                 <H3>Select your car</H3>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <DropDownPicker
-                                        items={this.state.cars}
-                                        accessibilityLabel={'DropDownPicker'}
-                                        // defaultValue={this.state.cars.length>0 ? this.state.cars[0]: car}
-                                        containerStyle={{height: 40, width: 250}}
-                                        style={{backgroundColor: '#fafafa'}}
-                                        itemStyle={{
-                                            justifyContent: 'flex-start'
-                                        }}
-                                        dropDownStyle={{backgroundColor: '#fafafa'}}
-                                        onChangeItem={item => this.setState({car: item})}
-                                        searchable={true}
-                                        searchablePlaceholder="Search for an item"
-                                        searchablePlaceholderTextColor="gray"
-                                        seachableStyle={{}}
-                                        searchableError={() => <Text>Not Found</Text>}
-                                    />
-                                    <Button rounded icon transparent large style={{marginLeft: 5}} onPress={()=>this.onModalOpen()}>
-                                        <Icon name={'ios-add-circle-outline'} size={36} color="#900"/>
-                                    </Button>
-                                </View>
+                                {this.state.car ?
+                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        <DropDownPicker
+                                            items={this.state.cars}
+                                            accessibilityLabel={'DropDownPicker'}
+                                            // defaultValue={this.state.car.value}
+                                            containerStyle={{height: 40, width: 250}}
+                                            style={{backgroundColor: '#fafafa'}}
+                                            itemStyle={{
+                                                justifyContent: 'flex-start'
+                                            }}
+                                            dropDownStyle={{backgroundColor: '#fafafa'}}
+                                            onChangeItem={item => this.setState({newCar: item})}
+                                            searchable={true}
+                                            searchablePlaceholder="Search for an item"
+                                            searchablePlaceholderTextColor="gray"
+                                            seachableStyle={{}}
+                                            searchableError={() => <Text>Not Found</Text>}
+                                        />
+                                        <Button rounded icon transparent large style={{marginLeft: 5}} onPress={()=>this.onModalOpen()}>
+                                            <Icon name={'ios-add-circle-outline'} size={36} color="#900"/>
+                                        </Button>
+                                    </View>
+                                : null
+                                }
+
                             </View>
                         </View>
                     </View>
@@ -608,7 +623,7 @@ class EditRide extends Component {
 
                             <Card transparent style={{width: Dimensions.get('window').width, marginBottom: 10}}>
                                 <Button info block rounded onPress={()=>this.onSubmit()}>
-                                    <Text>Add Ride</Text>
+                                    <Text>Update Ride</Text>
                                 </Button>
                             </Card>
                         </ScrollView>

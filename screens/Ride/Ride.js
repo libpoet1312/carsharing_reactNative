@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Dimensions, StyleSheet, View, ActivityIndicator} from 'react-native';
+import {Dimensions, StyleSheet, View, ActivityIndicator, ScrollView} from 'react-native';
 import {Card, CardItem, Body, Left, Header, Button, Icon, Title, Text} from 'native-base';
 import MapView from 'react-native-maps';
 
@@ -208,7 +208,7 @@ class Ride extends Component {
 
 
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Card style={{width: Dimensions.get('window').width,}}>
                     <Header noShadow style={{backgroundColor: 'white', }}>
                         <Body style={{alignItems:'center'}}>
@@ -244,7 +244,7 @@ class Ride extends Component {
                 </Card>
                 {this.props.isAuthenticated?
                     <Card transparent>
-                        <CardItem transparent>
+                        <CardItem transparent style={{alignSelf: 'center'}}>
                             {button}
                         </CardItem>
                     </Card> : null
@@ -293,7 +293,7 @@ class Ride extends Component {
                     vacant={ride.vacant_seats}
                     joinHandler={(seats, msg) => this.joinHandler(seats, msg)}
                 />
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -323,12 +323,12 @@ const mapDispatchToProps = dispatch => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-        top:-5
+        // alignItems: 'center',
+        // justifyContent: 'center',
+        top:5
     },
     mapStyle: {
-        width: Dimensions.get('window').width,
+        width: Dimensions.get('window').width-40,
         height: 400,
     },
 });

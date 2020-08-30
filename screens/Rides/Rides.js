@@ -56,7 +56,7 @@ class Rides extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        // console.log('shouldComponentUpdate');
+        console.log('shouldComponentUpdate');
         // console.log(nextProps.rides.length, this.props.rides.length);
         return nextProps.rides.length !== this.props.rides.length
     }
@@ -77,11 +77,14 @@ class Rides extends Component {
     };
 
     fetchMoreRides = () => {
-        if(this.props.rides.length<this.props.pager.totalItems ){
-            console.log('fetchMoreRides');
-            query.set('page', this.props.pager.currentPage + 1);
-            this.props.fetchMoreRides(query.toString());
+        if(this.props.rides){
+            if(this.props.rides.length<this.props.pager.totalItems ){
+                console.log('fetchMoreRides');
+                query.set('page', this.props.pager.currentPage + 1);
+                this.props.fetchMoreRides(query.toString());
+            }
         }
+
     };
 
 

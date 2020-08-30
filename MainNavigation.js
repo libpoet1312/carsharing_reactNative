@@ -2,6 +2,7 @@ import React, { Component, } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator,  } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { HeaderBackButton } from '@react-navigation/stack';
 
 
 import {connect} from 'react-redux';
@@ -39,13 +40,22 @@ const RideStack = (props) => {
         <RideStackNav.Navigator
             initialRouteName="Rides"
             screenOptions={
-                {headerRight: () => (<MyHeader navigation={props.navigation}/>)}
+                {
+                    headerRight: () => (<MyHeader navigation={props.navigation}/>),
+
+                }
             }
         >
             <RideStackNav.Screen name="Rides" component={Rides} options={{
             }}/>
             <RideStackNav.Screen name="Ride" component={Ride} options={{
                 headerTitle: '',
+                headerLeft: (props) => (
+                    <HeaderBackButton
+                        {...props}
+
+                    />
+                )
 
             }}/>
         </RideStackNav.Navigator>
@@ -61,45 +71,50 @@ const AuthStack = (props) => {
                 {headerRight: () => (<MyHeader navigation={props.navigation}/>)}
             }
         >
-            {props.route.params.isAuthenticated ?
-                <>
-                    <AuthStackNav.Screen name="MyProfile" component={MyProfile}/>
-                    <AuthStackNav.Screen name="Profile" component={Profile}/>
-                    <AuthStackNav.Screen name="Settings" component={Settings} />
-                    <AuthStackNav.Screen name="MyRides" component={MyRides}
-                                         options={{headerTitle: 'My Rides'}}
-                    />
-                    <AuthStackNav.Screen name="AddRide" component={AddRide}
-                                         options={{headerTitle: 'Add a ride'}}
-                    />
-                    <AuthStackNav.Screen name="EditRide" component={EditRide}
-                                         options={{headerTitle: 'Edit Ride'}}
-                    />
-                    <AuthStackNav.Screen name="MyRequests" component={MyRequests}
-                        options={{headerTitle: 'My Requests'}}
-                    />
-                    <AuthStackNav.Screen name="RequestsOfMyRides" component={RequestsOfMyRides}
-                                         options={{headerTitle: 'Requests of my rides'}}
-                    />
-                    <AuthStackNav.Screen name="Cars" component={Cars} />
-                    <AuthStackNav.Screen name="AddCar" component={AddCar} options={{
-                        headerTitle: 'Add Car'
-                    }}/>
-                </>
-                :
-                <>
-                    <AuthStackNav.Screen name="SignIn" component={Login}
-                                         options={{
-                                             title: 'Sign in',
-                                             // When logging out, a pop animation feels intuitive
-                                             // You can remove this if you want the default 'push' animation
-                                             animationTypeForReplace: !props.route.params.isAuthenticated ? 'pop' : 'push',
-                                         }}/>
-                    <AuthStackNav.Screen name="SignUp" component={Signup} />
+            <>
 
-                    {/*<AuthStackNav.Screen name="ResetPassword" component={ResetPassword} />*/}
-                </>
-            }
+                {props.route.params.isAuthenticated ?
+                    <>
+                        <AuthStackNav.Screen name="MyProfile" component={MyProfile}/>
+                        <AuthStackNav.Screen name="Profile" component={Profile}/>
+                        <AuthStackNav.Screen name="Settings" component={Settings} />
+                        <AuthStackNav.Screen name="MyRides" component={MyRides}
+                                             options={{headerTitle: 'My Rides'}}
+                        />
+                        <AuthStackNav.Screen name="AddRide" component={AddRide}
+                                             options={{headerTitle: 'Add a ride'}}
+                        />
+                        <AuthStackNav.Screen name="EditRide" component={EditRide}
+                                             options={{headerTitle: 'Edit Ride'}}
+                        />
+                        <AuthStackNav.Screen name="MyRequests" component={MyRequests}
+                            options={{headerTitle: 'My Requests'}}
+                        />
+                        <AuthStackNav.Screen name="RequestsOfMyRides" component={RequestsOfMyRides}
+                                             options={{headerTitle: 'Requests of my rides'}}
+                        />
+                        <AuthStackNav.Screen name="Cars" component={Cars} />
+                        <AuthStackNav.Screen name="AddCar" component={AddCar} options={{
+                            headerTitle: 'Add Car'
+                        }}/>
+
+                    </>
+                    :
+                    <>
+                        <AuthStackNav.Screen name="SignIn" component={Login}
+                                             options={{
+                                                 title: 'Sign in',
+                                                 // When logging out, a pop animation feels intuitive
+                                                 // You can remove this if you want the default 'push' animation
+                                                 animationTypeForReplace: !props.route.params.isAuthenticated ? 'pop' : 'push',
+                                             }}/>
+                        <AuthStackNav.Screen name="SignUp" component={Signup} />
+
+                        {/*<AuthStackNav.Screen name="ResetPassword" component={ResetPassword} />*/}
+                    </>
+
+                }
+            </>
 
         </AuthStackNav.Navigator>
     );
@@ -176,6 +191,8 @@ class MainNavigation extends  Component{
                     >
                         <Tab.Screen name="Home" component={Home}/>
                         <Tab.Screen name="Rides" component={RideStack}
+
+
                         />
                         <Tab.Screen name="FAQ" component={FAQ}/>
                         <Tab.Screen name={!this.props.isAuthenticated ? "Login" : "MyProfile"} component={AuthStack}

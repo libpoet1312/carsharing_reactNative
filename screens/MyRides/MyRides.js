@@ -57,7 +57,7 @@ class MyRides extends Component{
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         console.log('shouldComponentUpdate');
         // console.log(nextProps.rides.length, this.props.rides.length);
-        if(nextProps.rides.length && this.props.rides.length)return nextProps.rides.length !== this.props.rides.length;
+        if(nextProps.rides && this.props.rides) return nextProps.rides.length !== this.props.rides.length;
         return true;
     }
 
@@ -188,7 +188,7 @@ class MyRides extends Component{
 
                     ListFooterComponent={()=>{
                         return (
-                            (this.props.loading || this.state.isLoadingMore) &&
+                            (this.props.loading && this.state.isLoadingMore) &&
                             <View style={{ flex: 1 }}>
                                 <ActivityIndicator size="large" color={'black'} />
                             </View>
