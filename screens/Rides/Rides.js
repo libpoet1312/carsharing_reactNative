@@ -8,7 +8,12 @@ import {AppLoading} from "expo";
 
 import SearchBar from "../../components/SearchBar/SearchBar";
 import RideItem from "../../components/RideItem/RideItem";
-import {Icon} from "native-base";
+import {Icon, H1, H3, DatePicker, Button} from "native-base";
+
+import RBSheet from "react-native-raw-bottom-sheet";
+import {GOOGLE_MAPS_KEY} from "../../config";
+import {GooglePlacesAutocomplete} from "react-native-google-places-autocomplete";
+import NumericInput from "rn-numeric-input";
 
 const height = Dimensions.get('window').height - 100;
 
@@ -27,9 +32,10 @@ class Rides extends Component {
         destination: null,
         date: null,
         time: null,
-        passengers: null,
+        vacant_seats: 1,
         pager: {},
         isLoadingMore: false,
+        isModalVisible: false
     };
 
     onRefresh() {
@@ -57,14 +63,21 @@ class Rides extends Component {
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         console.log('shouldComponentUpdate');
+
         // console.log(nextProps.rides.length, this.props.rides.length);
-        return nextProps.rides.length !== this.props.rides.length
+        if(this.state.isModalVisible!==nextState.isModalVisible) return true;
+        if(this.props.rides) return nextProps.rides.length !== this.props.rides.length;
+        return true;
     }
 
     isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
         const paddingToBottom = 20; // how far from the bottom
         return layoutMeasurement.height + contentOffset.y >=
             contentSize.height - paddingToBottom;
+    };
+
+    setDate = (date) => {
+        console.log(date);
     };
 
 
@@ -77,6 +90,7 @@ class Rides extends Component {
     };
 
     fetchMoreRides = () => {
+        console.log(this.props.rides.length,this.props.pager.totalItems );
         if(this.props.rides){
             if(this.props.rides.length<this.props.pager.totalItems ){
                 console.log('fetchMoreRides');
@@ -85,6 +99,15 @@ class Rides extends Component {
             }
         }
 
+    };
+
+    toggleModal = () => {
+        console.log('toogle');
+        this.setState({isModalVisible: true})
+    };
+
+    closeModal = () => {
+        this.setState({isModalVisible: false})
     };
 
 
@@ -96,6 +119,7 @@ class Rides extends Component {
 
         return (
             <View style={styles.container}>
+
                 <FlatList
                     data={this.props.rides}
                     renderItem={({ item }) => RideItem({item}, this.props.navigation)} //passing navigation props also!
@@ -124,12 +148,107 @@ class Rides extends Component {
                 />
                 <TouchableOpacity
                     style={styles.filterBtn}
+                    onPress={() => this.RBSheet.open()}
                 >
                     <Icon name="filter" type='AntDesign' size={30} />
                 </TouchableOpacity>
 
 
+                <RBSheet
+                    ref={ref => {this.RBSheet = ref}}
+                    height={550}
+                    openDuration={100}
+                    closeDuration={50}
+                    animationType={'slide'}
+                    customStyles={{
+                        container: {
+                            padding: 10,
+                            // alignItems: "center",
+                            backgroundColor: '#fff',
+                        },
+                        wrapper: {
 
+                            backgroundColor: 'transparent',
+                        },
+                    }}
+                    closeOnDragDown={true}
+                >
+                    <H1 style={{alignSelf: 'center', backgroundColor: 'orange', padding: 10, borderRadius: 25}}>Filters...</H1>
+
+                    <H3>Origin:</H3>
+                    <GooglePlacesAutocomplete
+                        placeholder='Origin'
+                        onPress={(data, details = null) => {
+                            // 'details' is provided when fetchDetails = true
+                            console.log(data, details);
+                        }}
+                        onFail={(error) => console.error(error)}
+                        query={{
+                            key: GOOGLE_MAPS_KEY,
+                            language: 'en',
+                        }}
+                    />
+
+                    <H3>Destination:</H3>
+                    <GooglePlacesAutocomplete
+                        placeholder='Destination'
+                        onPress={(data, details = null) => {
+                            // 'details' is provided when fetchDetails = true
+                            console.log(data, details);
+                        }}
+                        onFail={(error) => console.error(error)}
+                        query={{
+                            key: GOOGLE_MAPS_KEY,
+                            language: 'en',
+                        }}
+                    />
+
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 10}}>
+                        <View style={{alignItems: 'center'}}>
+                            <H3>Seats Available</H3>
+                            <NumericInput
+                                // value={this.state.value}
+                                onChange={value => this.setState({vacant_seats: value})}
+                                onLimitReached={(isMax,msg) => console.log(isMax,msg)}
+                                totalWidth={150}
+                                totalHeight={40}
+                                iconSize={20}
+                                step={1}
+                                valueType='integer'
+                                rounded
+                                textColor='#B0228C'
+                                iconStyle={{ color: 'white' }}
+                                rightButtonBackgroundColor='#EA3788'
+                                leftButtonBackgroundColor='#E56B70'
+                                minValue={1}
+                                initValue={this.state.vacant_seats}
+                            />
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <H3 >Date</H3>
+                            <DatePicker
+                                defaultDate={Date.now()}
+                                minimumDate={Date.now()}
+                                // maximumDate={new Date(2018, 12, 31)}
+                                locale={"gr"}
+                                timeZoneOffsetInMinutes={undefined}
+                                modalTransparent={false}
+                                animationType={"fade"}
+                                androidMode={"default"}
+                                placeHolderText="Select date"
+                                textStyle={{ color: "green" }}
+                                placeHolderTextStyle={{ color: "#d3d3d3" }}
+                                onDateChange={this.setDate}
+                                disabled={false}
+                            />
+                        </View>
+                    </View>
+
+                    <Button warning full rounded style={{marginTop: 20}}>
+                        <H3>Apply</H3>
+                    </Button>
+
+                </RBSheet>
             </View>
         )
     }
