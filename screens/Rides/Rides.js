@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions} from "react-native";
+import {View, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator} from "react-native";
 
 import {connect} from 'react-redux';
 import * as ridesActions from '../../store/actions/ridesActions';
@@ -15,9 +15,8 @@ import {GOOGLE_MAPS_KEY} from "../../config";
 import {GooglePlacesAutocomplete} from "react-native-google-places-autocomplete";
 import NumericInput from "rn-numeric-input";
 
-const height = Dimensions.get('window').height - 100;
 
-let query = new URLSearchParams();
+// let query = new URLSearchParams();
 
 
 class Rides extends Component {
@@ -35,13 +34,14 @@ class Rides extends Component {
         vacant_seats: 1,
         pager: {},
         isLoadingMore: false,
-        isModalVisible: false
+        isModalVisible: false,
+        query: new URLSearchParams()
     };
 
     onRefresh() {
         this.setState({ loading: true }, () => {
-            query.delete('page');
-            this.props.fetchRides(query.toString()) });
+            this.state.query.delete('page');
+            this.props.fetchRides(this.state.query.toString()) });
     }
 
 
@@ -49,13 +49,14 @@ class Rides extends Component {
 
 
     componentDidMount() {
-        query.append('page', '1');
-        this.props.fetchRides(query.toString());
+        this.state.query.append('page', '1');
+        this.props.fetchRides(this.state.query.toString());
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        // console.log('componentDidUpdate');
-        if(!this.props.loading && prevProps.loading) {
+        console.log('componentDidUpdate');
+        console.log(!this.props.loading&& prevProps.loading);
+        if(!this.props.loading&& prevProps.loading ) {
             // console.log('asd');
             this.setState({isLoadingMore: false});
         }
@@ -65,8 +66,24 @@ class Rides extends Component {
         console.log('shouldComponentUpdate');
 
         // console.log(nextProps.rides.length, this.props.rides.length);
-        if(this.state.isModalVisible!==nextState.isModalVisible) return true;
-        if(this.props.rides) return nextProps.rides.length !== this.props.rides.length;
+        // console.log(this.props.pager);
+        // if(this.state.isModalVisible!==nextState.isModalVisible) return true;
+        if(this.props.rides) {
+            // console.log(nextProps.pager.currentPage, this.props.pager.totalPages);
+            // return nextProps.pager.currentPage<= this.props.pager.totalPages;
+            return nextProps.rides.length !== this.props.rides.length;
+            // if(nextProps.rides.length !== this.props.rides.length){
+            //     console.log('true');
+            //     return true;
+            // }else{
+            //
+            //     // console.log('false', nextState.query.toString()!==this.state.query.toString());
+            //     // return nextState.query.toString()!==this.state.query.toString();
+            //     return false;
+            // }
+
+
+        }
         return true;
     }
 
@@ -94,20 +111,40 @@ class Rides extends Component {
         if(this.props.rides){
             if(this.props.rides.length<this.props.pager.totalItems ){
                 console.log('fetchMoreRides');
-                query.set('page', this.props.pager.currentPage + 1);
-                this.props.fetchMoreRides(query.toString());
+                this.state.query.set('page', this.props.pager.currentPage + 1);
+                this.props.fetchMoreRides(this.state.query.toString());
             }
         }
 
     };
 
-    toggleModal = () => {
-        console.log('toogle');
-        this.setState({isModalVisible: true})
+
+    setFilters = ()=> {
+        if(this.state.origin) this.state.query.append('origin', this.state.origin);
+        if(this.state.destination) this.state.query.append('destination', this.state.destination);
+        if(this.state.vacant_seats>1) this.state.query.append('passengers', this.state.vacant_seats);
+        this.state.query.set('page', '1');
+
+        console.log(this.state.query);
+        this.props.fetchRides(this.state.query.toString());
     };
 
-    closeModal = () => {
-        this.setState({isModalVisible: false})
+    resetFilters = () => {
+        //reset query
+        this.state.query.delete('origin');
+        this.state.query.delete('destination');
+        this.state.query.delete('date');
+        this.state.query.delete('passengers');
+
+        // reset state
+        this.setState( {
+            origin: null,
+            destination: null,
+            date: null,
+            vacant_seats: 1,
+
+        });
+        this.props.fetchRides(this.state.query.toString());
     };
 
 
@@ -139,7 +176,7 @@ class Rides extends Component {
 
                     ListFooterComponent={()=>{
                         return (
-                            (this.props.loading || this.state.isLoadingMore) &&
+                            (this.props.loading ) &&
                             <View style={{ flex: 1 }}>
                                 <ActivityIndicator size="large" color={'black'} />
                             </View>
@@ -178,10 +215,17 @@ class Rides extends Component {
                     <H3>Origin:</H3>
                     <GooglePlacesAutocomplete
                         placeholder='Origin'
-                        onPress={(data, details = null) => {
+                        onPress={(data = null) => {
                             // 'details' is provided when fetchDetails = true
-                            console.log(data, details);
+                            console.log(data.description);
+                            this.setState({origin: data.description})
                         }}
+                        textInputProps={{
+                            onChangeText : text => {
+                                this.setState({origin: text})
+                            }
+                        }}
+
                         onFail={(error) => console.error(error)}
                         query={{
                             key: GOOGLE_MAPS_KEY,
@@ -192,9 +236,15 @@ class Rides extends Component {
                     <H3>Destination:</H3>
                     <GooglePlacesAutocomplete
                         placeholder='Destination'
-                        onPress={(data, details = null) => {
+                        onPress={(data = null) => {
                             // 'details' is provided when fetchDetails = true
-                            console.log(data, details);
+                            console.log(data.description);
+                            this.setState({destination: data.description})
+                        }}
+                        textInputProps={{
+                            onChangeText : text => {
+                                this.setState({destination: text})
+                            }
                         }}
                         onFail={(error) => console.error(error)}
                         query={{
@@ -244,7 +294,14 @@ class Rides extends Component {
                         </View>
                     </View>
 
-                    <Button warning full rounded style={{marginTop: 20}}>
+                    {this.state.destination||this.state.origin||this.state.vacant_seats>1||this.state.date ?
+                        <Button onPress={this.resetFilters} danger full rounded style={{marginTop: 20}}>
+                            <H3>Reset</H3>
+                        </Button>
+                        : null
+                    }
+
+                    <Button onPress={this.setFilters} warning full rounded style={{marginTop: 20}}>
                         <H3>Apply</H3>
                     </Button>
 

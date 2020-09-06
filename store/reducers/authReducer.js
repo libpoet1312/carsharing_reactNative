@@ -19,7 +19,7 @@ const authStart = (state) => {
 };
 
 const authSuccess = (state, action) => {
-    console.log(action.user);
+    // console.log(action.user);
     const user = {
         pk: action.user.user.pk,
         username: action.user.user.username,
@@ -60,7 +60,7 @@ const facebookAuthStart = (state) => {
 };
 
 const facebookAuthSuccess = (state, action) => {
-    console.log(action.user);
+    // console.log(action.user);
     const user = {
         pk: action.user.user.pk,
         username: action.user.user.username,

@@ -122,7 +122,7 @@ export const authLogin = (username, password) => {
                 token: response.data.token,
                 user: response.data.user
             };
-            console.log('123');
+            // console.log('123');
             AsyncStorage.setItem('user', JSON.stringify(user), error=>{
                 console.log(error);
             });
@@ -158,7 +158,7 @@ export const authSignup = (
             dob: dob,
         }).then (
             response =>{
-                console.log(response);
+                // console.log(response);
                 const user = {
                     token: response.data.token,
                     user: response.data.user

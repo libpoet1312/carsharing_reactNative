@@ -2,13 +2,15 @@
   "expo": {
     "name": "carsharing",
     "slug": "carsharing",
+    "description": "A sustainable way to travel!",
+    "githubUrl": "https://github.com/libpoet1312/carsharing_reactNative",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/homelogo.png",
     "splash": {
-      "image": "./assets/splash1.png",
+      "image": "./assets/splashNew.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFFFF"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -20,7 +22,12 @@
       "supportsTablet": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/splashNew.png"
+    },
+    "android": {
+      "package": "com.carsharing.carsharing",
+      "versionCode": 1
     }
   }
+
 }

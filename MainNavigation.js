@@ -190,10 +190,7 @@ class MainNavigation extends  Component{
                         }}
                     >
                         <Tab.Screen name="Home" component={Home}/>
-                        <Tab.Screen name="Rides" component={RideStack}
-
-
-                        />
+                        <Tab.Screen name="Rides" component={RideStack}/>
                         <Tab.Screen name="FAQ" component={FAQ}/>
                         <Tab.Screen name={!this.props.isAuthenticated ? "Login" : "MyProfile"} component={AuthStack}
                                     initialParams={{isAuthenticated: this.props.isAuthenticated}}

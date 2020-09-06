@@ -1,11 +1,8 @@
 import React, { Component } from 'react'
-import { StyleSheet, View, ActivityIndicator, Image, TextInput } from 'react-native';
-import axios from "axios";
+import { StyleSheet, View, Image } from 'react-native';
 import {Button, Text, } from "native-base";
 import logo from "../../assets/images/carsharing.jpg";
-import * as authActions from "../../store/actions/authActions";
-import {connect} from "react-redux";
-import AsyncStorage from '@react-native-community/async-storage';
+
 
 class Home extends Component {
     render() {
@@ -24,20 +21,13 @@ class Home extends Component {
 
 
 
-                <View>
+                <View style={{marginTop: 40}}>
                     <Button
                         onPress={()=> this.props.navigation.navigate('Rides')}
                     >
                         <Text>Go to Rides</Text>
                     </Button>
-                    <Button danger
-                        onPress={()=> this.props.logout()}
-                    >
-                        <Text>Logout</Text>
-                    </Button>
-                    <Text>
-                        123
-                    </Text>
+
 
                 </View>
 
@@ -46,13 +36,8 @@ class Home extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-    return {
-        logout: () => dispatch(authActions.logout()),
-    }
-};
 
-export default connect(null, mapDispatchToProps)(Home);
+export default (Home);
 
 
 
